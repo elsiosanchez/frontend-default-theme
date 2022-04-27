@@ -1,0 +1,50 @@
+{
+  "server": {
+    "host": "localhost",
+    "port": 9527
+  },
+  "adempiere": {
+    "api": {
+      "url": "https://api.erpya.com/api/adempiere/",
+      "timeout": 10000
+    },
+    "images": {
+      "url": "https://api.erpya.com/adempiere-api/img/"
+    },
+    "resource": {
+      "url": "https://api.erpya.com/adempiere-api/"
+    }
+  },
+  "repository": {
+    "url": "https://api.github.com",
+    "releaseNo": "releaseNoForDocumentation"
+  },
+  "documentation": {
+    "api": {
+      "url": "https://api.github.com/repos/adempiere/"
+    }
+  },
+  "betaFunctionality": {
+    "window": false,
+    "process": false,
+    "report": false,
+    "smartBrowser": false,
+    "form": false
+  },
+  "pointOfSales": {
+    "endpoint": "/form/addons/point-of-sales"
+  },
+  "priceChecking": {
+    "endpoint": "/form/addons/point-of-sales"
+  },
+  "match": {
+    "endpoint": "/form/addons/match"
+  },
+  "weight": {
+    "endpoint": "/form/addons/weight"
+  },
+  "session": {
+    "timeout": 300000
+  },
+  "theme": "src/themes/default"
+}
