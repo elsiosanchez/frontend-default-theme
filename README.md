@@ -2,6 +2,7 @@
   <img src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Adempiere-logo.png" />
 </p>
 
+
 # adv-default-theme - Theme based on [Vue Element Admin](https://panjiachen.github.io/vue-element-admin-site) for [ADempiere Vue](https://github.com/adempiere/adempiere-vue)
 
 New adv-default-theme template theme for [ADempiere Vue](https://github.com/adempiere/adempiere-vue), based on [Vue Element Admin](https://panjiachen.github.io/vue-element-admin-site/). 90% of the adv-default-theme code is locked in the [Vue Element Admin](https://panjiachen.github.io/vue-element-admin-site) library. Thanks to this, adv-default-theme can keep its flexibility, but minimize the risk of errors.
