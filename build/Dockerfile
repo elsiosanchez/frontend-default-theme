@@ -5,8 +5,8 @@ LABEL maintainer="ysenih@erpya.com" \
 
 # Init ENV with default values
 ENV VS_ENV=prod \
-    REPOSITORY_PATH="/var/www/vue-storefront" \
-    REPOSITORY_NAME="vue-storefront" \
+    REPOSITORY_PATH="/var/www/adv-default-theme" \
+    REPOSITORY_NAME="adv-default-theme" \
     URL_BASE_REPOSITORY="https://github.com/adempiere/adempiere-vue.git" \
     SERVER_PORT="9527" \
     SERVER_HOST="localhost" \
@@ -14,7 +14,7 @@ ENV VS_ENV=prod \
     MEMORY_RESTART="1G" \
     EXEC_INSTANCES="1"
 
-COPY dist-app/ /var/www/adv-default-theme/
+COPY dist-app/ $REPOSITORY_PATH
 
 RUN rm -rf /var/cache/apk/* && \
   apk add --no-cache --virtual .build-deps ca-certificates wget python3 make g++ \
@@ -39,7 +39,6 @@ RUN rm -rf /var/cache/apk/* && \
 
 # Copy Default files
 COPY build/default.json $REPOSITORY_PATH/config/
-COPY build/ecosystem.json $REPOSITORY_PATH
 COPY build/start.sh $REPOSITORY_PATH
 
 WORKDIR $REPOSITORY_PATH
