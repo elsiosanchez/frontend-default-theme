@@ -32,7 +32,7 @@ RUN rm -rf /var/cache/apk/* && \
      git clone $URL_BASE_REPOSITORY $REPOSITORY_PATH && \
      cd $REPOSITORY_PATH && \
 #	 yarn global add lerna && \
-     git submodule add /var/www/adv-default-theme src/themes/default && \
+     git submodule add /var/www/adv-default-theme ./src/themes/default && \
 #     git submodule update --init ./src/themes/default && \
      chmod -R 777 $REPOSITORY_PATH
 
