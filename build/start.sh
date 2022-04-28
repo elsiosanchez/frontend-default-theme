@@ -7,4 +7,4 @@ cd /var/www/adempiere-vue/static/js
 find -name 'app.*.js' -exec sed -i "s|https://api.erpya.com|$API_URL|g" {} \;
 
 # Start nginx web server
-nginx && tail -f /dev/null
+tail -f /dev/null
