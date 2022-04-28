@@ -62,7 +62,7 @@ jobs:
       - name: Download build dist app
         uses: actions/download-artifact@v2
         with:
-          name: adempiere-vue
+          name: adv-default-theme
           path: dist
 
       - name: Login to GitHub Container Registry
