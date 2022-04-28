@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # folder with dist app files
-cd /var/www/adv-default-theme/static/js
+cd /var/www/adempiere-vue/static/js
 
 # Set API Proxy connection
 find -name 'app.*.js' -exec sed -i "s|https://api.erpya.com|$API_URL|g" {} \;
