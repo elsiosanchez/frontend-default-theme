@@ -39,7 +39,7 @@
   "dependencies": {
     "tasksfile": "^5.1.1"
   },
-  "devDependences": {
+  "devDependencies": {
     "@vue/cli-service": "4.5.13"
   },
   "homepage": "https://github.com/erpcya/adv-default-theme#readme"
