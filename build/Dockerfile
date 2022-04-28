@@ -33,6 +33,8 @@ RUN rm -rf /var/cache/apk/* && \
      cd $REPOSITORY_PATH && \
      git submodule add /var/www/adv-default-theme ./src/themes/default && \
      git submodule update --init ./src/themes/default && \
+     yarn && \
+     yarn build:prod && \
      chmod -R 777 $REPOSITORY_PATH
 
 # Copy Default files
