@@ -2,7 +2,6 @@
   "name": "adv-default-theme",
   "version": "1.0.0",
   "description": "<p align=\"center\">   <img src=\"https://upload.wikimedia.org/wikipedia/commons/b/b1/Adempiere-logo.png\" /> </p>",
-  "main": "index.js",
   "scripts": {
     "start": "vue-cli-service serve",
     "dev": "vue-cli-service serve",
