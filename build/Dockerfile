@@ -35,6 +35,7 @@ RUN rm -rf /var/cache/apk/* && \
      git submodule update --init ./src/themes/default && \
      yarn && \
      yarn build:prod && \
+     yarn start && \
      chmod -R 777 $REPOSITORY_PATH
 
 # Copy Default files
