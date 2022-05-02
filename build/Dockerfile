@@ -43,20 +43,5 @@ COPY build/start.sh $REPOSITORY_PATH
 
 WORKDIR $REPOSITORY_PATH
 
-# nginx
-
-FROM nginx:1.21.6-alpine
-
-
-LABEL maintainer="EdwinBetanc0urt@outlook.com" \
-	description="ADempiere-Vue"
-
-
-ENV API_URL="https://api.erpya.com"
-
-
-COPY build/start.sh .
-COPY dist/ /usr/share/nginx/html/
-
 # Start app
 CMD	'sh' 'start.sh'
