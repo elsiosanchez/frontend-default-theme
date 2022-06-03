@@ -333,7 +333,7 @@ export default {
         return
       }
       this.isLoading = true
-
+      this.refreshValue({ ...this.metadata })
       this.getDefaultValueFromServer({
         parentUuid: this.metadata.parentUuid,
         containerUuid: this.metadata.containerUuid,
@@ -349,9 +349,13 @@ export default {
             this.value = responseLookupItem.value
             this.displayedValue = responseLookupItem.displayedValue
             this.uuidValue = responseLookupItem.uuid
-            this.$nextTick(() => {
-              this.optionsList = this.getStoredLookupAll
-            })
+            this.$nextTick()
+              .then(() => {
+                this.optionsList = this.getStoredLookupAll
+              })
+              .finally(() => {
+                this.refreshValue({ ...this.metadata, value: this.value })
+              })
           }
         })
         .finally(() => {
@@ -440,6 +444,14 @@ export default {
           // set empty value
           this.value = this.blankOption.value
         })
+    },
+    refreshValue({ columnName, containerUuid, parentUuid, value }) {
+      this.$store.commit('updateValueOfField', {
+        parentUuid,
+        containerUuid,
+        columnName,
+        value
+      })
     }
   }
 

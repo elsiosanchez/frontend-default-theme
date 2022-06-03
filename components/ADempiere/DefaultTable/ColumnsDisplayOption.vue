@@ -23,61 +23,32 @@
     </span>
 
     <el-dropdown-menu slot="dropdown" style="max-width: 300px;">
-      <el-dropdown-item
-        :disabled="isEmptyValue(selectionsRecords)"
-        :command="{
-          dispatch: 'deleteSelectedRecordsFromWindow',
-          value: {
-            parentUuid,
-            containerUuid
-          }
-        }"
-      >
-        <i class="el-icon-delete" />
-        {{ $t('table.dataTable.deleteSelection') }}
-      </el-dropdown-item>
-      <el-dropdown-item
-        :command="{
-          dispatch: 'selectOption',
-          value: $t('table.dataTable.showMinimalistView')
-        }"
-      >
-        <svg-icon :icon-class="optionIcon($t('table.dataTable.showMinimalistView'))" />
-        {{ $t('table.dataTable.showMinimalistView') }}
-      </el-dropdown-item>
-      <el-dropdown-item
-        :command="{
-          dispatch: 'selectOption',
-          value: $t('table.dataTable.showAllColumns')
-        }"
-      >
-        <svg-icon :icon-class="optionIcon($t('table.dataTable.showAllColumns'))" />
-        {{ $t('table.dataTable.showAllColumns') }}
-      </el-dropdown-item>
-      <el-dropdown-item
-        :command="{
-          dispatch: 'selectOption',
-          value: $t('table.dataTable.showOnlyMandatoryColumns')
-        }"
-      >
-        <svg-icon :icon-class="optionIcon($t('table.dataTable.showOnlyMandatoryColumns'))" />
-        {{ $t('table.dataTable.showOnlyMandatoryColumns') }}
-      </el-dropdown-item>
-      <el-dropdown-item
-        :command="{
-          dispatch: 'selectOption',
-          value: $t('table.dataTable.showTableColumnsOnly')
-        }"
-      >
-        <svg-icon :icon-class="optionIcon($t('table.dataTable.showTableColumnsOnly'))" />
-        {{ $t('table.dataTable.showTableColumnsOnly') }}
-      </el-dropdown-item>
+      <template v-for="(list, key) in options">
+        <el-dropdown-item
+          v-show="!list.hidden"
+          :key="key"
+          :command="{
+            doneMethod: list.doneMethod,
+            params: list.params
+          }"
+          :disabled="list.disabled"
+        >
+          <i v-if="list.typeIcon == 'i'" :class="list.icon" />
+          <svg-icon v-else :icon-class="list.icon" />
+          {{ list.name }}
+        </el-dropdown-item>
+
+      </template>
     </el-dropdown-menu>
   </el-dropdown>
 </template>
 
 <script>
 import { defineComponent, computed } from '@vue/composition-api'
+// utils and helper methods
+import language from '@/lang'
+import { isEmptyValue } from '@/utils/ADempiere/valueUtils'
+
 export default defineComponent({
   name: 'ColumnsDisplayOption',
 
@@ -107,6 +78,58 @@ export default defineComponent({
         containerUuid: props.containerUuid
       })
     })
+    const options = computed(() => {
+      return [
+        {
+          doneMethod: 'deleteSelectedRecordsFromWindow',
+          params: {
+            parentUuid: props.parentUuid,
+            containerUuid: props.containerUuid
+          },
+          name: language.t('table.dataTable.deleteSelection'),
+          typeIcon: 'i',
+          icon: 'el-icon-delete',
+          hidden: false,
+          disabled: isEmptyValue(selectionsRecords.value)
+        },
+        {
+          doneMethod: 'selectOption',
+          params: language.t('table.dataTable.showMinimalistView'),
+          name: language.t('table.dataTable.showMinimalistView'),
+          typeIcon: 'svg-icon',
+          icon: optionIcon(language.t('table.dataTable.showMinimalistView')),
+          hidden: false,
+          disabled: false
+        },
+        {
+          doneMethod: 'selectOption',
+          params: language.t('table.dataTable.showAllColumns'),
+          name: language.t('table.dataTable.showAllColumns'),
+          typeIcon: 'svg-icon',
+          icon: optionIcon(language.t('table.dataTable.showAllColumns')),
+          hidden: false,
+          disabled: false
+        },
+        {
+          doneMethod: 'selectOption',
+          params: language.t('table.dataTable.showOnlyMandatoryColumns'),
+          name: language.t('table.dataTable.showOnlyMandatoryColumns'),
+          typeIcon: 'svg-icon',
+          icon: optionIcon(language.t('table.dataTable.showOnlyMandatoryColumns')),
+          hidden: false,
+          disabled: false
+        },
+        {
+          doneMethod: 'selectOption',
+          params: language.t('table.dataTable.showTableColumnsOnly'),
+          name: language.t('table.dataTable.showTableColumnsOnly'),
+          typeIcon: 'svg-icon',
+          icon: optionIcon(language.t('table.dataTable.showTableColumnsOnly')),
+          hidden: false,
+          disabled: false
+        }
+      ]
+    })
     const optionIcon = (icon) => {
       if (icon === props.option) {
         return 'eye-open'
@@ -115,10 +138,12 @@ export default defineComponent({
     }
 
     const handleCommand = (command) => {
-      root.$store.dispatch(command.dispatch, command.value)
+      root.$store.dispatch(command.doneMethod, command.params)
     }
 
     return {
+      // Data
+      options,
       // Computed
       selectionsRecords,
       // Methods
