@@ -24,6 +24,7 @@
         :container-uuid="currentTabUuid"
         :container-manager="containerManager"
         :actions-manager="listAction"
+        :references-manager="referencesManager"
       />
     </div>
     <panel-definition
@@ -70,6 +71,10 @@ export default defineComponent({
     tabAttributes: {
       type: Object,
       default: () => ({})
+    },
+    referencesManager: {
+      type: Object,
+      required: true
     }
   },
 

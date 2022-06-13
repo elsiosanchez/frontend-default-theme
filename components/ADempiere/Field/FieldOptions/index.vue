@@ -249,10 +249,12 @@ export default defineComponent({
 
       zoomIn({
         uuid: window.uuid,
-        selection: [{
-          columnName: columnName,
-          value: value
-        }]
+        query: {
+          filters: [{
+            columnName,
+            value
+          }]
+        }
       })
     }
 

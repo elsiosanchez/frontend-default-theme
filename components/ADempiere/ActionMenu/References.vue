@@ -156,14 +156,16 @@ export default defineComponent({
       if (!root.isEmptyValue(referenceElement.windowUuid)) {
         const pairsValues = Filters.newInstance()
           .setFiltersWithSQL(referenceElement.whereClause)
-          .getAsArray()
-
+          .getAsObject()
         zoomIn({
           uuid: referenceElement.windowUuid,
           query: {
             action: 'zoomIn',
             tabParent: 0,
-            filters: pairsValues
+            filters: [{
+              columnName: pairsValues[0].columnName,
+              value: pairsValues[0].value
+            }]
           }
         })
       }
