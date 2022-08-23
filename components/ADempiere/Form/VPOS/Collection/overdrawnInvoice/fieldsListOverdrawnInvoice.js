@@ -68,9 +68,9 @@ export default [
     }
   },
   {
-    // columnName: 'BankAccountType',
-    // tableName: 'C_BankAccount',
-    uuid: '8cf2a1c2-fb40-11e8-a479-7a0060f0aa01',
+    columnName: 'BankAccountType',
+    tableName: 'C_BP_BankAccount',
+    // uuid: '8cf2a1c2-fb40-11e8-a479-7a0060f0aa01',
     isFromDictionary: true,
     overwriteDefinition: {
       sequence: 2,
@@ -203,6 +203,17 @@ export default [
       displayLogicPayment: 'D',
       isActiveLogics: true,
       isMandatory: true
+    }
+  },
+  {
+    elementColumnName: 'Phone',
+    columnName: 'Phone',
+    tableName: 'AD_user',
+    isFromDictionary: true,
+    overwriteDefinition: {
+      isCustomField: true,
+      isMandatory: true,
+      size: 8
     }
   }
 ]
