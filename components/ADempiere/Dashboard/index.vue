@@ -41,7 +41,8 @@
           :is="renderDashboard"
           :ref="dashboard.name"
           :metadata="metadata"
-          :height="'450px'"
+          :height="'250px'"
+          :width="'100%'"
         />
       </div>
     </transition>
@@ -198,7 +199,6 @@ export default {
     text-align: center;
     color: #fff;
     box-sizing: border-box;
-    height: 500px;
     overflow: auto;
   }
   .label-dashboard{

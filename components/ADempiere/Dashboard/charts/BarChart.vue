@@ -82,6 +82,7 @@ export default {
     getMetricsFromServer() {
       this.initChart()
       if (!this.isEmptyValue(this.metadata.actions)) {
+        console.log(this.metadata)
         this.$store.dispatch('metrics', {
           id: this.metadata.id,
           tableName: this.metadata.tableName,

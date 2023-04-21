@@ -16,8 +16,11 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
 
 <template>
   <div class="main-express-receipt">
-    <el-card shadow="never">
-      {{ data }}
+    <el-card
+      shadow="never"
+      class="main-panel"
+      style="border: 0px;margin: 10px 0px;"
+    >
       <el-row
         v-for="(dashboardAttributes, index) in list"
         :key="index"
@@ -30,12 +33,15 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
           :md="{ span: 24 }"
           :lg="{ span: 24 }"
           :xl="{ span: 24 }"
-          style="padding-right:8px;margin-bottom:2px;"
         >
-          <dashboard
+          <!-- <dashboard
             :metadata="dashboardAttributes"
             :title="dashboardAttributes.name"
             :main="true"
+          /> -->
+          <customizable-charts
+            :title="dashboardAttributes.name"
+            :metadata="dashboardAttributes"
           />
         </el-col>
       </el-row>
@@ -61,7 +67,8 @@ import store from '@/store'
 // } from '@/api/ADempiere/form/expresMovement.js'
 
 // Component and Mixin
-import Dashboard from '@theme/components/ADempiere/Dashboard/index.vue'
+// import Dashboard from '@theme/components/ADempiere/Dashboard/index.vue'
+import CustomizableCharts from '@theme/components/ADempiere/CustomizableCharts/index.vue'
 // Utils and Helper Methods
 // import { isEmptyValue } from '@/utils/ADempiere'
 // import { showMessage } from '@/utils/ADempiere/notification'
@@ -70,7 +77,8 @@ import Dashboard from '@theme/components/ADempiere/Dashboard/index.vue'
 export default defineComponent({
   name: 'RecordDashboard',
   components: {
-    Dashboard
+    CustomizableCharts
+    // Dashboard
   },
   setup(props, { root, refs }) {
     /**
@@ -142,6 +150,11 @@ export default defineComponent({
   .el-table__header-wrapper {
     font-size: 18px;
     line-height: 22px;
+  }
+}
+.main-panel {
+  .el-card__body {
+    padding: 0px;
   }
 }
 </style>

@@ -89,7 +89,9 @@ export default {
     initChart() {
       this.chart = echarts.init(this.$el, 'macarons')
       this.chart.showLoading()
+      console.log(this.metadata, 4155)
       if (!this.isEmptyValue(this.metadata.actions)) {
+        console.log(this.metadata)
         this.$store.dispatch('metrics', {
           id: this.metadata.id,
           tableName: this.metadata.tableName,
