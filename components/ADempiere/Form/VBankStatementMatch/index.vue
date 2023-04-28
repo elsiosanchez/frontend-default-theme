@@ -17,7 +17,7 @@ along with this program.  If not, see <https:www.gnu.org/licenses/>.
 -->
 <template>
   <div style="height: -webkit-fill-available;">
-    <div style="height: 10% !important;">
+    <div style="height: 10% !important;padding: 0px 15px;">
       <el-steps :active="currentSetp" finish-status="success">
         <el-step
           v-for="(list, key) in stepList"
@@ -26,7 +26,7 @@ along with this program.  If not, see <https:www.gnu.org/licenses/>.
         />
       </el-steps>
     </div>
-    <div style="height: 80% !important;">
+    <div style="height: 80% !important;padding: 0px 10px;">
       <transition name="el-fade-in-linear">
         <search-criteria
           v-if="currentSetp === 1"
@@ -46,7 +46,7 @@ along with this program.  If not, see <https:www.gnu.org/licenses/>.
         /> -->
       </transition>
     </div>
-    <div style="height: 5% !important;text-align: end;">
+    <div style="height: 5% !important;text-align: end;padding: 0px 10px;">
       <el-button
         v-if="!isNext"
         type="info"
