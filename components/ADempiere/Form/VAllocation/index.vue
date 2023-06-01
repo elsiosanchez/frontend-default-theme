@@ -37,7 +37,7 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
     </div>
     <div style="height: 5% !important;text-align: end;padding: 0px 15px;">
       <el-button v-show="currentSetp > 0" type="danger" icon="el-icon-close" plain @click="currentSetp--" />
-      <el-button v-show="currentSetp < 2" type="primary" icon="el-icon-check" :disabled="isDisabledProcess" plain @click="nextStep" />
+      <el-button v-show="currentSetp < 2" type="primary" icon="el-icon-check" :disabled="isDisabledList" plain @click="nextStep" />
     </div>
   </div>
 </template>
@@ -99,13 +99,19 @@ export default defineComponent({
       return (currentSetp.value > 0) && isEmptyValue(businessPartnerId)
     })
 
+    const isDisabledList = computed(() => {
+      const isDisabled = store.getters.getIsDisabledList
+      if (currentSetp.value > 0) return isDisabled
+      return isDisabledProcess.value
+    })
+
     function nextStep(step) {
       if (currentSetp > 2) return
-      currentSetp.value++
       if (currentSetp.value > 1) {
         store.dispatch('processSend')
       }
-      if (!isEmptyValue(stepList.value[currentSetp.value]) && stepList.value[currentSetp.value].key === 'payments') {
+      currentSetp.value++
+      if (currentSetp.value === 1) {
         store.dispatch('findListPayment')
         store.dispatch('findListInvoices')
       }
@@ -122,6 +128,7 @@ export default defineComponent({
       currentSetp,
       // Computed
       isDisabledProcess,
+      isDisabledList,
       // Methods
       nextStep
     }

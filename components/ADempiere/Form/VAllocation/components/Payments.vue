@@ -36,6 +36,7 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
             >
               <el-table-column
                 type="selection"
+                fixed
                 width="40"
               />
               <el-table-column
@@ -104,6 +105,7 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
             >
               <el-table-column
                 type="selection"
+                fixed
                 width="40"
               />
               <el-table-column
@@ -370,14 +372,14 @@ export default defineComponent({
           }
         }
         if (valorAnterior.transactionType === 'P' && valorActual.transactionType === 'R') {
-          const amount = +(valorAnterior.amount - valorActual.amount)
+          const amount = (valorAnterior.amount) + (valorActual.amount)
           return {
             transactionType: valorAnterior.transactionType,
             amount
           }
         }
         if (valorAnterior.transactionType === 'R' && valorActual.transactionType === 'P') {
-          const amount = +(valorAnterior.amount - valorActual.amount)
+          const amount = (valorAnterior.amount) + (valorActual.amount)
           return {
             transactionType: valorAnterior.transactionType,
             amount
@@ -386,7 +388,7 @@ export default defineComponent({
         if (valorAnterior.transactionType === 'R' && valorActual.transactionType === 'R') {
           const amount = valorAnterior.amount - valorActual.amount
           return {
-            transactionType: valorActual.transactionType,
+            transactionType: valorAnterior.transactionType,
             amount
           }
         }
