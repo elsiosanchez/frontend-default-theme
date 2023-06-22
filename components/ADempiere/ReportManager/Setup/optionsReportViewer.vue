@@ -99,7 +99,7 @@
                     :label="$t('report.summary')"
                     style="display: grid;"
                   >
-                    <el-switch v-model="value1" />
+                    <el-switch v-model="isSummary" />
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -146,13 +146,18 @@
             type="danger"
             class="button-base-icon"
             icon="el-icon-close"
-            @click="handleClose()"
+            @click="handleClose(containerUuid)"
           />
           <el-button
             type="primary"
             class="button-base-icon"
             icon="el-icon-check"
-            @click="runReport()"
+            @click="runReportViewer({
+              containerUuid,
+              findTagViwer,
+              isSummary,
+              tableName
+            })"
           />
         </samp>
       </el-col>
@@ -162,17 +167,18 @@
 
 <script>
 import { defineComponent, computed, ref, watch } from '@vue/composition-api'
-
-import router from '@/router'
 import store from '@/store'
-import lang from '@/lang'
 
 // Components adn Mixins
 import CollapseCriteria from '@theme/components/ADempiere/CollapseCriteria/index.vue'
 
 // Utils and Helper Methods
 import { isEmptyValue } from '@/utils/ADempiere/valueUtils.js'
-import { showNotification } from '@/utils/ADempiere/notification'
+import {
+  updateReport,
+  handleClose,
+  runReportViewer
+} from '@theme/components/ADempiere/ReportManager/Setup/reprortActions.ts'
 
 export default defineComponent({
   name: 'optionsReportViewer',
@@ -208,7 +214,7 @@ export default defineComponent({
     const reportAsPrintFormatValue = ref('')
     const reportTypeFormatValue = ref('')
     const activeCollapse = ref(['1', '2'])
-    const value1 = ref(true)
+    const isSummary = ref(true)
 
     /**
      * Computed
@@ -303,123 +309,42 @@ export default defineComponent({
       return store.getters.visitedViews.find(tag => tag.instanceUuid === root.$route.params.instanceUuid)
     })
 
+    const allParams = computed(() => {
+      return {
+        containerUuid: props.containerUuid,
+        reportType: reportTypeFormatValue.value,
+        reportViewUuid: reportAsViewValue.value,
+        printFormatUuid: reportAsPrintFormatValue.value,
+        isSummary: isSummary.value
+      }
+    })
+
     /**
      * Methods
-     * @updatePrintFormat - @params {String} - Actualizar en el store el parametro Print Format
-     * @updateReportView - @params {String} - Actualizar en el store el parametro Report Viwer
-     * @updateReportType - @params {String} - Actualizar en el store el parametro Report Type
-     * @handleClose - Close Panel and Clean Value
      * @runReport - Run Report and Close Panel
      * @runReport - @params {Object} - Set in the field the parameters with which the report was run
      */
-
-    function updatePrintFormat(value) {
-      store.commit('setReportGenerated', {
-        containerUuid: props.containerUuid,
-        printFormatUuid: value,
-        reportType: reportTypeFormatValue.value,
-        reportViewUuid: reportAsViewValue.value
-      })
-    }
-
-    function updateReportView(value) {
-      store.commit('setReportGenerated', {
-        containerUuid: props.containerUuid,
-        printFormatUuid: reportAsPrintFormatValue.value,
-        reportType: reportTypeFormatValue.value,
-        reportViewUuid: value
-      })
-    }
-
-    function updateReportType(value) {
-      store.commit('setReportGenerated', {
-        containerUuid: props.containerUuid,
-        reportViewUuid: reportAsViewValue.value,
-        printFormatUuid: reportAsPrintFormatValue.value,
-        reportType: value
-      })
-    }
-
-    function handleClose() {
-      store.commit('setShowPanelConfig', {
-        containerUuid: props.containerUuid,
-        value: false
-      })
-      reportAsViewValue.value = ''
-      reportAsPrintFormatValue.value = ''
-      reportTypeFormatValue.value = ''
-    }
-
-    function runReport() {
-      const reportDefinition = store.getters.getStoredReport(props.containerUuid)
-      const reportOutputParams = store.getters.getReportParameters({
-        containerUuid: props.containerUuid,
-        fieldsList: reportDefinition.fieldsList
-      })
-      const { name, description } = store.getters.getReportOutput(root.$route.params.instanceUuid)
-      showNotification({
-        title: lang.t('notifications.processing'),
-        message: name,
-        summary: description,
-        type: 'info'
-      })
-      store.dispatch('buildReport', {
-        containerUuid: props.containerUuid,
-        instanceUuid: root.$route.params.instanceUuid,
-        isSummary: value1.value,
-        tableName: tableName.value,
-        parametersList: reportOutputParams
-      })
-        .then(response => {
-          store.dispatch('tagsView/delCachedView', findTagViwer.value).then(() => {
-            const { fullPath } = findTagViwer.value
-            this.$nextTick(() => {
-              router.replace({
-                path: '/redirect' + fullPath
-              })
-            })
-          })
-          showNotification({
-            title: lang.t('notifications.succesful'),
-            message: name,
-            type: 'success'
-          })
-        })
-        .catch(error => {
-          showNotification({
-            title: lang.t('notifications.error'),
-            message: name,
-            summary: error,
-            type: 'error'
-          })
-        })
-      store.commit('setShowPanelConfig', {
-        containerUuid: props.containerUuid,
-        value: false
-      })
-    }
 
     function defaultReport(report) {
       const { reportViewUuid, printFormatUuid, reportType } = report
       reportAsViewValue.value = reportViewUuid
       reportAsPrintFormatValue.value = printFormatUuid
       reportTypeFormatValue.value = reportType
-      store.commit('setReportGenerated', {
-        containerUuid: props.containerUuid,
+      const defaultReport = {
+        reportType,
         reportViewUuid,
         printFormatUuid,
-        reportType
-      })
+        isSummary: isSummary.value,
+        containerUuid: props.containerUuid
+      }
+      updateReport(defaultReport)
     }
 
     function clearParameters() {
       store.dispatch('setReportDefaultValues', {
         containerUuid: props.containerUuid
       })
-      const { reportViewUuid, printFormatUuid, reportType } = defaultParams.value
-      reportAsViewValue.value = reportViewUuid
-      reportAsPrintFormatValue.value = printFormatUuid
-      reportTypeFormatValue.value = reportType
+      defaultReport(defaultParams.value)
     }
 
     /**
@@ -427,44 +352,30 @@ export default defineComponent({
      */
 
     watch(reportAsViewValue, (newValue) => {
-      updateReportView(newValue)
+      updateReport(allParams.value)
     })
 
     watch(reportAsPrintFormatValue, (newValue) => {
-      updatePrintFormat(newValue)
+      updateReport(allParams.value)
     })
 
     watch(reportTypeFormatValue, (newValue) => {
-      updateReportType(newValue)
+      updateReport(allParams.value)
     })
 
     watch(isShowSetupReport, (newValue) => {
-      if (newValue) {
-        defaultReport(defaultParams.value)
-      }
+      updateReport(allParams.value)
     })
 
-    watch(value1, (newValue) => {
+    watch(isSummary, (newValue) => {
       if (newValue) {
-        store.commit('setReportGenerated', {
-          containerUuid: props.containerUuid,
-          printFormatUuid: reportAsPrintFormatValue.value,
-          reportType: reportTypeFormatValue.value,
-          reportViewUuid: reportAsPrintFormatValue.value,
-          isSummary: newValue
-        })
+        updateReport(allParams.value)
       }
     })
 
     /**
      * Run Methods As soon as I load the panel
      */
-
-    updatePrintFormat(reportTypeFormatValue.value)
-
-    updateReportView(reportAsViewValue.value)
-
-    updateReportType(reportTypeFormatValue.value)
 
     defaultReport(defaultParams.value)
 
@@ -474,7 +385,7 @@ export default defineComponent({
       reportAsPrintFormatValue,
       reportTypeFormatValue,
       activeCollapse,
-      value1,
+      isSummary,
       // Components
       reportAsView,
       reportAsPrintFormat,
@@ -488,12 +399,10 @@ export default defineComponent({
       findTagViwer,
       // methods
       clearParameters,
-      updatePrintFormat,
-      updateReportView,
-      updateReportType,
+      defaultReport,
+      updateReport,
       handleClose,
-      runReport,
-      defaultReport
+      runReportViewer
     }
   }
 })

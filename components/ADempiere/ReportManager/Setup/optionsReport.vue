@@ -111,13 +111,13 @@
             type="danger"
             class="button-base-icon"
             icon="el-icon-close"
-            @click="handleClose()"
+            @click="handleClose(containerUuid)"
           />
           <el-button
             type="primary"
             class="button-base-icon"
             icon="el-icon-check"
-            @click="runReport()"
+            @click="runReport(containerUuid)"
           />
         </samp>
       </el-col>
@@ -135,6 +135,10 @@ import CollapseCriteria from '@theme/components/ADempiere/CollapseCriteria/index
 
 // Utils and Helper Methods
 import { isEmptyValue } from '@/utils/ADempiere/valueUtils.js'
+import {
+  runReport,
+  handleClose
+} from '@theme/components/ADempiere/ReportManager/Setup/reprortActions.ts'
 
 export default defineComponent({
   name: 'OptionsReport',
@@ -212,7 +216,6 @@ export default defineComponent({
       }
       return 'el-icon-arrow-right'
     })
-    const epale = ref('')
     const show2 = ref(false)
 
     function updatePrintFormat(value) {
@@ -239,25 +242,6 @@ export default defineComponent({
         reportViewUuid: reportAsViewValue.value,
         printFormatUuid: reportAsPrintFormatValue.value,
         reportType: value
-      })
-    }
-
-    function handleClose() {
-      store.commit('setShowPanelConfig', {
-        containerUuid: props.containerUuid,
-        value: false
-      })
-      actionClear()
-    }
-
-    function runReport() {
-      store.dispatch('buildReport', {
-        containerUuid: props.containerUuid,
-        isSummary: true
-      })
-      store.commit('setShowPanelConfig', {
-        containerUuid: props.containerUuid,
-        value: false
       })
     }
 
@@ -292,7 +276,6 @@ export default defineComponent({
       reportTypeFormatValue,
       attributes,
       icon,
-      epale,
       reportAsView,
       reportAsPrintFormat,
       reportTypeFormat,
