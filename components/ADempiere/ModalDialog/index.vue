@@ -19,6 +19,7 @@
     v-if="!isMobile"
     class="modal-dialog"
     :visible="isShowed"
+    width="80%"
     @close="closeDialog"
   >
     <span slot="title">

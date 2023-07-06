@@ -36,7 +36,7 @@
         class="kanban todo"
         header-text="Todo"
       >
-        <div class="board-column">
+        <div class="board-column" :style="isMobile ? 'max-width: 500px;overflow: auto;' : ''">
           <div class="board-column-header">
             {{ $t('component.sequenceSort.available') }} ({{ availableListShowed.length }})
           </div>
@@ -46,6 +46,7 @@
             :group="group"
             v-bind="dragOptions"
             class="board-column-content"
+            :handle="handleSequence"
             :style="draggableStyle"
           >
             <div
@@ -54,6 +55,9 @@
               :disabled="isDifferentClientRecord"
               :class="{ 'board-item': true, 'board-item-edit': element.isEditRow }"
             >
+              <span v-if="isMobile" class="handle">
+                <svg-icon icon-class="drag" />
+              </span>
               <b>#{{ element[sortColumnName] }}</b>
               {{ element.DisplayColumn }}
 
@@ -71,8 +75,8 @@
         class="kanban working"
         header-text="Working"
       >
-        <div class="board-column">
-          <div class="board-column-header">
+        <div class="board-column" :style="isMobile ? 'width: 100%;overflow: auto;margin: 0px;padding: 0px;' : ''">
+          <div class="board-column-header" :style="isMobile ? 'width: 105%;' : ''">
             {{ $t('component.sequenceSort.sequence') }} ({{ sequenceListShowed.length }})
           </div>
 
@@ -82,6 +86,7 @@
             v-bind="dragOptions"
             class="board-column-content"
             :style="draggableStyle"
+            :handle="handleSequence"
             @change="handleChange"
           >
             <div
@@ -90,6 +95,9 @@
               :disabled="isDifferentClientRecord"
               :class="{ 'board-item': true, 'board-item-edit': element.isEditRow }"
             >
+              <span v-if="isMobile" class="handle">
+                <svg-icon icon-class="drag" />
+              </span>
               <b>#{{ element[sortColumnName] }}</b>
               {{ element.DisplayColumn }}
 
@@ -181,8 +189,13 @@ export default defineComponent({
     })
 
     const draggableStyle = computed(() => {
-      if (isMobile.value) return 'max-height: 450px; overflow: auto;min-height: 250px;'
+      if (isMobile.value) return 'max-height: 240px; overflow: auto;min-height: 220px;margin-top: 10px'
       return 'max-height: 450px; overflow: auto;'
+    })
+
+    const handleSequence = computed(() => {
+      if (isMobile.value) return '.handle'
+      return ''
     })
 
     const recordsList = computed({
@@ -525,6 +538,7 @@ export default defineComponent({
       dragOptions,
       isMobile,
       classBoard,
+      handleSequence,
       panelMetadata,
       draggableStyle,
       includedColumnName,
@@ -579,7 +593,8 @@ export default defineComponent({
       .board-item {
         cursor: pointer;
         width: 100%;
-        height: 30px;
+        display: block;
+        height: -webkit-fill-available;
         margin: 5px 0;
         background-color: #fff;
         text-align: left;
@@ -628,7 +643,7 @@ export default defineComponent({
     align-items: flex-start;
 
     .kanban {
-      width: 45%;
+      width: 49%;
 
       &.todo {
         .board-column-header {
@@ -677,7 +692,7 @@ export default defineComponent({
     justify-content: space-around;
     flex-direction: row;
     align-items: flex-start;
-    height: 100% !important;
+    height: 95% !important;
     text-align: -webkit-center;
 
     .kanban {
