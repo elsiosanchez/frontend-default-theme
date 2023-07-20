@@ -184,6 +184,7 @@ export default defineComponent({
     })
 
     const componentRender = computed(() => {
+      console.log({ storedModalDialog: storedModalDialog.value, containerManagerModalDialog: containerManagerModalDialog.value })
       return storedModalDialog.value.componentPath
     })
 

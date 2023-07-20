@@ -22,7 +22,7 @@ along with this program.  If not, see <https:www.gnu.org/licenses/>.
         id="panel-select-table"
         class="panel-select-table"
       >
-        <div slot="header" class="clearfix" :style="isEmptyValue(currentTable) ? 'padding: 10px;' : 'padding-right: 10px; padding-left: 10px; padding-top: 10px;'">
+        <div slot="header" class="clearfix" style="padding: 10px">
           <h3
             v-if="isEmptyValue(currentTable)"
             style="text-align: center;margin: 0px;"
@@ -636,7 +636,6 @@ export default defineComponent({
   max-height: 65vh;
 }
 .custom-card-select {
-  margin: 0.5px;
   cursor: pointer;
   background-color: #eaf5fe;
   border: 1px solid #36a3f7;

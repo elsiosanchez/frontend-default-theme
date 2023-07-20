@@ -25,14 +25,6 @@
             class="form-min-label"
             inline
           >
-            <!-- <el-col :span="spanSize" style="border: 1px solid rgb(230, 235, 245);padding: 0px 10px;">
-              <el-form-item
-                :label="$t('form.VFileImport.saveAndProcess.fileName')"
-                style="width: 100%;text-align: center;margin-bottom: 0px !important;color: transparent !important;"
-              >
-                {{ 'alo' }}
-              </el-form-item>
-            </el-col> -->
             <el-col :span="spanSize" style="border: 1px solid #e6ebf5;">
               <el-form-item
                 :label="$t('form.VFileImport.selectTable.listOfCharacterSets')"
@@ -59,12 +51,54 @@
             </el-col>
             <el-col :span="spanSize" style="border: 1px solid #e6ebf5;">
               <el-form-item
-                :label="$t('form.VFileImport.saveAndProcess.processes')"
+                :label="$t('form.VFileImport.step.saveAndProcess')"
                 style="width: 100%;text-align: center;margin-bottom: 0px !important;"
               >
                 <el-switch
                   v-model="isProcess"
                 />
+              </el-form-item>
+            </el-col>
+            <el-col v-if="isProcess" :span="spanSize" style="border: 1px solid #e6ebf5;">
+              <el-form-item
+                :label="$t('form.VFileImport.saveAndProcess.processes')"
+                style="width: 100%;text-align: center;margin-bottom: 0px !important;"
+              >
+                <el-dropdown
+                  v-if="!isEmptyValue(listProcess) && listProcess.length > 1"
+                  plain
+                  split-button
+                  :hide-on-click="true"
+                  :class="{ 'action-container': true, 'without-defualt-action': false }"
+                  @click="loadProcess(listProcess[0])"
+                  @command="handleCommand"
+                >
+                  <span>
+                    {{ listProcess[0].DisplayColumn }}
+                  </span>
+                  <el-dropdown-menu
+                    slot="dropdown"
+                  >
+                    <template
+                      v-for="(process, index) in listProcess"
+                    >
+                      <el-dropdown-item
+                        :key="index"
+                        :command="process.uuid"
+                      >
+                        {{ process.DisplayColumn }}
+                      </el-dropdown-item>
+                    </template>
+                  </el-dropdown-menu>
+                </el-dropdown>
+                <el-tag
+                  v-else-if="!isEmptyValue(listProcess) && listProcess.length === 1"
+                  @click="loadProcess(listProcess[0])"
+                >
+                  <b style="font-size: 16px;">
+                    {{ listProcess[0].DisplayColumn }}
+                  </b>
+                </el-tag>
               </el-form-item>
             </el-col>
           </el-form>
@@ -73,78 +107,22 @@
       <br>
     </el-card>
     <el-card
-      v-if="!isEmptyValue(getInfoImportFormats)"
+      v-if="!isEmptyValue(getProcessDefinition)"
       shadow="never"
       style="padding: 0px 10px !important;"
     >
-      <el-card
-        shadow="never"
-      >
-        <p
-          style="font-size: 18px;text-align: center;margin: 5px;"
-        >
-          <b>
-            {{ getInfoImportFormats.name }}
-          </b>
-        </p>
-        <p
-          style="font-size: 14px;text-align: center;margin: 5px;"
-        >
-          {{ getInfoImportFormats.description }}
-        </p>
-      </el-card>
-      <el-row :gutter="10">
-        <el-form
-          ref="form-express-receipt"
-          label-position="top"
-          class="form-min-label"
-          inline
-        >
-          <el-col
-            v-for="(field, key) in formatFields"
-            :key="field.sequence"
-            :span="spanSize"
-          >
-            <el-form-item
-              :label="field.name"
-              style="margin-bottom: 0px !important;width: 100%;"
-            >
-              <el-input
-                v-if="field.dataType === 'S'"
-                :value="displayValue(field, key)"
-                disabled
-                style="width: 100%;"
-              />
-              <el-input-number
-                v-else-if="field.dataType === 'N'"
-                :value="displayValue(field, key)"
-                controls-position="right"
-                disabled
-                style="width: 100%;"
-              />
-              <el-date-picker
-                v-else-if="field.dataType === 'D'"
-                v-model="field.defaultValue"
-                type="date"
-                disabled
-                style="width: 100%;"
-              />
-              <el-input
-                v-else-if="field.dataType === 'C'"
-                :value="displayValue(field, key)"
-                disabled
-                style="width: 100%;"
-              />
-            </el-form-item>
-          </el-col>
-        </el-form>
-      </el-row>
-      <el-row>
-        <slot
-          name="footer"
-        />
-      </el-row>
+      <panel-definition
+        :parent-uuid="''"
+        :container-uuid="getProcessDefinition.containerUuid"
+        :container-manager="containerManager"
+        :is-filter-records="false"
+      />
     </el-card>
+    <el-row>
+      <slot
+        name="footer"
+      />
+    </el-row>
   </div>
 </template>
 
@@ -159,18 +137,24 @@ import {
 import store from '@/store'
 
 // Components and Mixins
-
+import PanelDefinition from '@theme/components/ADempiere/PanelDefinition/index.vue'
 // Api Request Methods
 import {
   listCharsets,
   listImportFormats
 } from '@/api/ADempiere/form/VFileImport.js'
+import { requestProcessMetadata } from '@/api/ADempiere/dictionary/process.js'
 
 // Utils and Helper Methods
 import { isEmptyValue } from '@/utils/ADempiere'
+import { containerManager } from '@/utils/ADempiere/dictionary/process.js'
 
 export default defineComponent({
   name: 'saveProcess',
+
+  components: {
+    PanelDefinition
+  },
 
   setup() {
     /**
@@ -314,6 +298,16 @@ export default defineComponent({
       }
     })
 
+    const listProcess = computed(() => {
+      const { listProcess } = store.getters.getOptions
+      return listProcess
+    })
+
+    const getProcessDefinition = computed(() => {
+      const { processDefinition } = store.getters.getAttribute
+      return processDefinition
+    })
+
     /**
      * Methods
      */
@@ -440,9 +434,38 @@ export default defineComponent({
     }
     const singleTable = ref(null)
 
-    watch(currentLine, (newValue, oldValue) => {
+    function loadProcess(process) {
+      const { id } = process
+      requestProcessMetadata({
+        id
+      })
+        .then(response => {
+          store.dispatch('getProcessDefinitionFromServer', {
+            uuid: response.uuid
+          })
+            .then(processResponse => {
+              store.commit('updateAttributeVFileImport', {
+                attribute: 'attribute',
+                criteria: 'processDefinition',
+                value: processResponse
+              })
+            })
+        })
+    }
+
+    function handleCommand(uuid) {
+      const currentProcess = listProcess.value.find(list => list.uuid === uuid)
+      loadProcess(currentProcess)
+    }
+
+    watch(isProcess, (newValue, oldValue) => {
       if (newValue) {
-        singleTable.value.setCurrentRow(newValue)
+        const { tablaId } = store.getters.getAttribute
+        const { listTables } = store.getters.getOptions
+        const currentTable = listTables.find(list => list.id === tablaId)
+        store.dispatch('listProcess', {
+          tableName: currentTable.table_name
+        })
       }
     })
 
@@ -457,8 +480,11 @@ export default defineComponent({
       singleTable,
       // Computed
       currentLine,
+      listProcess,
       optionsCharsets,
       currrentCharsets,
+      containerManager,
+      getProcessDefinition,
       getInfoImportFormats,
       optionsImportFormats,
       currrentImportFormats,
@@ -470,7 +496,9 @@ export default defineComponent({
       remoteSearchImportFormats,
       handleSuccess,
       handleFormat,
-      displayValue
+      displayValue,
+      loadProcess,
+      handleCommand
     }
   }
 })
@@ -486,5 +514,52 @@ export default defineComponent({
     border-color: #dfe4ed;
     color: rgb(27, 26, 26);
     cursor: not-allowed;
+}
+.action-container {
+  &.without-defualt-action {
+    .el-button {
+      padding-left: 5px;
+      padding-right: 8px;
+    }
+  }
+
+  .el-button-group {
+    // light blue style of the first section of the menu button
+    // >.el-button::first-child {
+    >.el-button:not(:last-child) {
+      :not(.without-defualt-action) {
+        min-width: 105px;
+      }
+      font-weight: bold;
+      // margin-right: -1px;
+      color: #0080ff;
+      border-color: #0080ff;
+      background: #ecf5ff;
+    }
+
+    // light blue style of the drop down menu section
+    .el-button--primary:last-child {
+      // margin-right: 2px;
+      color: #0080ff;
+      border-color: #0080ff;
+      background: #e6f1fd;
+      border-left-color: #000000 !important;
+    }
+
+    // dark blue style when pointing to the menu
+    .el-button--primary:hover {
+      background: #1890ff;
+      border-color: #1890ff;
+      color: #FFFFFF;
+    }
+    .el-button-group > .el-button:last-child {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      font-weight: bold !important;
+      color: #0080ff;
+      border-color: #0080ff;
+      background: #ecf5ff;
+    }
+  }
 }
 </style>
