@@ -1,20 +1,22 @@
 <!--
-ADempiere-Vue (Frontend) for ADempiere ERP & CRM Smart Business Solution
-Copyright (C) 2017-Present E.R.P. Consultores y Asociados, C.A.
-Contributor(s): Elsio Sanchez elsiosanchez15@outlook.com https://github.com/elsiosanchez
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ ADempiere-Vue (Frontend) for ADempiere ERP & CRM Smart Business Solution
+ Copyright (C) 2018-Present E.R.P. Consultores y Asociados, C.A. www.erpya.com
+ Contributor(s): Elsio Sanchez elsiosanchez15@outlook.com https://github.com/elsiosanchez
+ Contributor(s): Edwin Betancourt EdwinBetanc0urt@outlook.com https://github.com/EdwinBetanc0urt
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https:www.gnu.org/licenses/>.
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <https:www.gnu.org/licenses/>.
 -->
+
 <template>
   <div>
     <el-row>
@@ -109,10 +111,11 @@ along with this program.  If not, see <https:www.gnu.org/licenses/>.
             </el-form>
           </span>
         </div>
+
         <el-scrollbar :wrap-class="scrollListTable">
           <el-row :gutter="10">
             <template v-for="(table, key) in listTables">
-              <el-col :key="key" :span="6">
+              <el-col :key="key" :span="6" style="height: 113px;">
                 <el-card
                   shadow="never"
                   :class="isActiveTable(table)"
@@ -143,6 +146,7 @@ along with this program.  If not, see <https:www.gnu.org/licenses/>.
         </el-scrollbar>
       </el-card>
     </el-row>
+
     <el-row>
       <slot
         name="footer"
@@ -158,6 +162,7 @@ import {
   watch
   // ref
 } from '@vue/composition-api'
+
 import store from '@/store'
 
 // Api Request Methods
@@ -171,6 +176,7 @@ import { isEmptyValue } from '@/utils/ADempiere'
 
 export default defineComponent({
   name: 'selectTable',
+
   props: {
     metadata: {
       type: Object,
@@ -187,15 +193,11 @@ export default defineComponent({
       default: ''
     }
   },
-  setup(props, { root }) {
-    /**
-    * Refs
-    */
 
+  setup() {
     /**
     * Computed
     */
-
     const listTables = computed(() => {
       const { listTables } = store.getters.getOptions
       return listTables.map(tables => {

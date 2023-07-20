@@ -1,15 +1,18 @@
 <!--
  ADempiere-Vue (Frontend) for ADempiere ERP & CRM Smart Business Solution
- Copyright (C) 2018-Present E.R.P. Consultores y Asociados, C.A.
+ Copyright (C) 2018-Present E.R.P. Consultores y Asociados, C.A. www.erpya.com
  Contributor(s): Elsio Sanchez elsiosanchez15@outlook.com https://github.com/elsiosanchez
+ Contributor(s): Edwin Betancourt EdwinBetanc0urt@outlook.com https://github.com/EdwinBetanc0urt
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
+
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
+
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <https:www.gnu.org/licenses/>.
 -->
@@ -60,6 +63,12 @@
                     {{ currrentImportFormats.label }}
                   </b>
                 </el-tag>
+
+                <el-button
+                  icon="el-icon-paperclip"
+                  size="mini"
+                  style="font-size: 18px; padding: 3px 5px; margin-left: 10px;"
+                />
               </el-form-item>
             </el-col>
           </el-form>
@@ -67,32 +76,9 @@
       </el-card>
       <br>
 
-      <el-table
-        ref="singleTable"
-        :data="dataTable"
-        border
-        highlight-current-row
-        style="width: 100%"
-        :empty-text="$t('form.VFileImport.configureToImport.emptyDataTable')"
-        height="35vh"
-      >
-        <el-table-column
-          v-for="item of headerTable"
-          :key="item.label"
-          width="150"
-        >
-          <template slot="header" slot-scope="scope">
-            {{ scope.row }}
-            <span>
-              {{ item.label }}
-            </span>
-          </template>
-          <template slot-scope="scope">
-            {{ scope.row[item.key] }}
-          </template>
-        </el-table-column>
-      </el-table>
+      <table-records />
     </el-card>
+
     <el-card
       v-if="!isEmptyValue(getInfoImportFormats)"
       shadow="never"
@@ -114,52 +100,9 @@
           {{ getInfoImportFormats.description }}
         </p>
       </el-card>
-      <el-row :gutter="10">
-        <el-form
-          ref="form-express-receipt"
-          label-position="top"
-          class="form-min-label"
-          inline
-        >
-          <el-col
-            v-for="(field, key) in formatFields"
-            :key="field.sequence"
-            :span="6"
-          >
-            <el-form-item
-              :label="field.name"
-              style="margin-bottom: 0px !important;width: 100%;"
-            >
-              <el-input
-                v-if="field.dataType === 'S'"
-                :value="displayValue(field, key)"
-                disabled
-                style="width: 100%;"
-              />
-              <el-input-number
-                v-else-if="field.dataType === 'N'"
-                :value="displayValue(field, key)"
-                controls-position="right"
-                disabled
-                style="width: 100%;"
-              />
-              <el-date-picker
-                v-else-if="field.dataType === 'D'"
-                v-model="field.defaultValue"
-                type="date"
-                disabled
-                style="width: 100%;"
-              />
-              <el-input
-                v-else-if="field.dataType === 'C'"
-                :value="displayValue(field, key)"
-                disabled
-                style="width: 100%;"
-              />
-            </el-form-item>
-          </el-col>
-        </el-form>
-      </el-row>
+
+      <import-format-fields />
+
       <el-row>
         <slot
           name="footer"
@@ -170,18 +113,15 @@
 </template>
 
 <script>
-import {
-  defineComponent,
-  computed,
-  watch,
-  ref
-} from '@vue/composition-api'
+import { defineComponent, computed } from '@vue/composition-api'
 
 import store from '@/store'
 
 // Components and Mixins
 import UploadExcelComponent from '@/themes/default/components/UploadExcel/index.vue'
 import UploadResource from '@/themes/default/components/ADempiere/PanelInfo/Component/AttachmentManager/uploadResource.vue'
+import TableRecords from './tableRecords.vue'
+import ImportFormatFields from './importFormatFields.vue'
 
 // Api Request Methods
 import {
@@ -193,9 +133,11 @@ import {
 import { isEmptyValue } from '@/utils/ADempiere'
 
 export default defineComponent({
-  name: 'VFileImport',
+  name: 'SelectFile',
 
   components: {
+    TableRecords,
+    ImportFormatFields,
     UploadExcelComponent,
     UploadResource
   },
@@ -204,25 +146,8 @@ export default defineComponent({
     /**
      * Computed
      */
-
-    const listField = ref([])
-
-    const dataTable = computed(() => {
-      const { data } = store.getters.getFile
-      return data
-    })
-
-    const headerTable = computed(() => {
-      const { header } = store.getters.getFile
-      return header
-    })
-
     const getInfoImportFormats = computed(() => {
       return store.getters.getInfoFormat
-    })
-
-    const currentLine = computed(() => {
-      return store.getters.getNavigationLine
     })
 
     const formatFields = computed({
@@ -397,19 +322,6 @@ export default defineComponent({
         })
     }
 
-    function handleFormat(field) {
-      const alo = headerTable.value.map(header => {
-        if (field.header === header) {
-          return {
-            ...header,
-            label: field.field
-          }
-        }
-        return header
-      })
-      headerTable.value = alo
-    }
-
     function handleSuccess({ results, header, resource, file }) {
       const data = results.filter((data, index) => {
         if (index <= 50) {
@@ -441,35 +353,10 @@ export default defineComponent({
       })
     }
 
-    function displayValue(field, index) {
-      const { header } = store.getters.getFile
-      if (isEmptyValue(header)) return
-      const line = formatFields.value.map(list => {
-        return {
-          ...list,
-          defaultValue: currentLine.value[header[field.startNo - 1].key]
-        }
-      })
-      listField.value = line
-      return line[field.startNo - 1].defaultValue
-    }
-    const singleTable = ref(null)
-
-    watch(currentLine, (newValue, oldValue) => {
-      if (newValue) {
-        singleTable.value.setCurrentRow(newValue)
-      }
-    })
-
     return {
       // Ref
-      headerTable,
-      dataTable,
       formatFields,
-      listField,
-      singleTable,
       // Computed
-      currentLine,
       optionsCharsets,
       currrentCharsets,
       getInfoImportFormats,
@@ -481,9 +368,7 @@ export default defineComponent({
       findImportFormats,
       remoteSearchCharsets,
       remoteSearchImportFormats,
-      handleSuccess,
-      handleFormat,
-      displayValue
+      handleSuccess
     }
   }
 })
