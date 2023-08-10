@@ -63,11 +63,11 @@ export default {
           form = import('@theme/components/ADempiere/Form/VMatch')
           break
         case 'VPOS':
-          this.$store.dispatch('settings/changeSetting', {
-            key: 'showContextMenu',
-            value: false
-          })
-          form = import('@theme/components/ADempiere/Form/VPOS')
+          // this.$store.dispatch('settings/changeSetting', {
+          //   key: 'showContextMenu',
+          //   value: false
+          // })
+          form = import('@theme/components/ADempiere/Form/NewVPOS')
           break
         case 'VGetWeight':
           form = import('@theme/components/ADempiere/Form/VGetWeight')
