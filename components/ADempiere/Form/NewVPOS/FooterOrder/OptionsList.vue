@@ -136,7 +136,6 @@ export default defineComponent({
     })
 
     const pointName = computed(() => {
-      console.log(store.getters.getPoint)
       return store.getters.getPoint.name
     })
 
@@ -145,7 +144,6 @@ export default defineComponent({
     })
 
     const pointDocumentType = computed(() => {
-      console.log(store.getters.getPoint)
       return store.getters.getPoint.documentType.name
     })
 
@@ -184,7 +182,6 @@ export default defineComponent({
         attribute: 'documentType',
         value: documentType
       })
-      // console.log({ documentType })
     }
 
     function changeWarehouses(warehouse) {
@@ -192,7 +189,6 @@ export default defineComponent({
         attribute: 'warehouse',
         value: warehouse
       })
-      // console.log({ warehouses })
     }
 
     function changePrices(price) {
@@ -200,7 +196,6 @@ export default defineComponent({
         attribute: 'priceList',
         value: price
       })
-      // console.log({ price })
     }
 
     function updateListAvalibles(point) {

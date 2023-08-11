@@ -42,6 +42,7 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
 <script>
 import { defineComponent, computed } from '@vue/composition-api'
 import lang from '@/lang'
+import store from '@/store'
 
 export default defineComponent({
   name: 'infoOrder',
@@ -111,6 +112,11 @@ export default defineComponent({
         }
       }
     })
+    const lines = computed(() => {
+      console.log(store.getters.getPoint.order)
+      return store.getters.getPoint.order.listLines
+    })
+    console.log({ lines: lines.value })
     return {
       orderLineDefinition
     }

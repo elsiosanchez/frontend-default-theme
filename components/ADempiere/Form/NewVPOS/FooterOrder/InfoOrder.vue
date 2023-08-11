@@ -23,7 +23,7 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
       <p style="margin-top: 0px;">
         {{ $t('form.pos.order.order') + ':' }}
         <b>
-          {{ order }}
+          {{ '' }}
         </b>
       </p>
       <p>
@@ -43,7 +43,7 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
       <p style="margin-top: 0px;">
         {{ $t('form.pos.order.order') + ':' }}
         <b>
-          {{ order }}
+          {{ order.documentNo }}
         </b>
       </p>
       <p>
@@ -64,13 +64,16 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
 
 <script>
 import { defineComponent, computed } from '@vue/composition-api'
+import store from '@/store'
 
 export default defineComponent({
   name: 'infoOrder',
   setup() {
     const order = computed(() => {
-      return 515515
+      console.log(store.getters.getPoint)
+      return store.getters.getPoint.order
     })
+    store.dispatch('getOrder')
     return {
       order
     }

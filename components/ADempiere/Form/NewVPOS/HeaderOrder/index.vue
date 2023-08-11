@@ -16,20 +16,14 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
 
 <template>
   <el-row>
-    <el-col
-      :span="12"
-      class="buttons-and-options"
-    >
-      <button-group-options
-        class="button-group-options"
-      />
-      <options-list />
+    <el-col :span="12">
+      <search-product />
     </el-col>
-    <el-col
-      :span="12"
-      class="order-info"
-    >
-      <info-order />
+    <el-col :span="8">
+      {{ 'Socio de Negocio' }}
+    </el-col>
+    <el-col :span="4">
+      {{ 'New Order > List Orders' }}
     </el-col>
   </el-row>
 </template>
@@ -38,16 +32,17 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
 import { defineComponent } from '@vue/composition-api'
 
 // Components and Mixins
-import ButtonGroupOptions from './ButtonGroupOptions.vue'
-import OptionsList from './OptionsList.vue'
-import InfoOrder from './InfoOrder.vue'
+import SearchProduct from './SearchProduct'
+// import ButtonGroupOptions from './ButtonGroupOptions.vue'
+// import OptionsList from './OptionsList.vue'
+// import InfoOrder from './InfoOrder.vue'
 
 export default defineComponent({
-  name: 'footerOrder',
+  name: 'HeaderOrder',
   components: {
-    ButtonGroupOptions,
-    OptionsList,
-    InfoOrder
+    SearchProduct
+  //   OptionsList,
+  //   InfoOrder
   }
 })
 </script>

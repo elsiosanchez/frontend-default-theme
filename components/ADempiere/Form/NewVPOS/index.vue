@@ -18,18 +18,8 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
   <el-container
     class="v-pos"
   >
-    <el-header>
-      <el-row>
-        <el-col :span="12">
-          {{ 'Busqueda de Producto' }}
-        </el-col>
-        <el-col :span="8">
-          {{ 'Socio de Negocio' }}
-        </el-col>
-        <el-col :span="4">
-          {{ 'New Order > List Orders' }}
-        </el-col>
-      </el-row>
+    <el-header style="height: auto !important;">
+      <header-order />
     </el-header>
     <el-main style="padding: 0px 20px;">
       <main-order />
@@ -47,14 +37,16 @@ import { defineComponent } from '@vue/composition-api'
 import store from '@/store'
 import router from '@/router'
 // Component and Mixins
-import FooterOrder from './FooterOrder'
+import HeaderOrder from './HeaderOrder'
 import MainOrder from './MainOrder'
+import FooterOrder from './FooterOrder'
 // Utils and Helper Methods
 import { isEmptyValue } from '@/utils/ADempiere/valueUtils'
 
 export default defineComponent({
   name: 'NewVPOS',
   components: {
+    HeaderOrder,
     MainOrder,
     FooterOrder
   },
