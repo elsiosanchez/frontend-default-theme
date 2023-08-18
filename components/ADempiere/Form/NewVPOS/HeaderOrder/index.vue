@@ -32,17 +32,12 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
 import { defineComponent } from '@vue/composition-api'
 
 // Components and Mixins
-import SearchProduct from './SearchProduct'
-// import ButtonGroupOptions from './ButtonGroupOptions.vue'
-// import OptionsList from './OptionsList.vue'
-// import InfoOrder from './InfoOrder.vue'
+import SearchProduct from './ProductInfo/SearchProduct'
 
 export default defineComponent({
   name: 'HeaderOrder',
   components: {
     SearchProduct
-  //   OptionsList,
-  //   InfoOrder
   }
 })
 </script>

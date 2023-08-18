@@ -15,49 +15,117 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
 -->
 
 <template>
-  <el-row>
+  <el-row :gutter="20" style="margin-top: 10px;">
     <el-col
       :span="14"
-      class="order-info"
+      style="float: left"
     >
-      <p style="margin-top: 0px;">
-        {{ $t('form.pos.order.order') + ':' }}
-        <b>
-          {{ '' }}
-        </b>
-      </p>
-      <p>
-        {{ $t('form.pos.order.date') + ':' }}
-      </p>
-      <p>
-        {{ $t('form.pos.order.itemQuantity') + ':' }}
-      </p>
-      <p style="margin: 0px;">
-        {{ $t('form.pos.order.numberLines') + ':' }}
-      </p>
+      <el-row>
+        <el-col :span="24" style="margin-top: 0px;">
+          <span
+            style="float: left"
+          >
+            {{ $t('form.pos.order.order') + ':' }}
+          </span>
+          <b style="float: right">
+            {{ infoOrder.documentNo }}
+          </b>
+        </el-col>
+        <el-col :span="24">
+          <span
+            style="float: left"
+          >
+            {{ $t('form.pos.order.date') + ':' }}
+          </span>
+          <b style="float: right">
+            {{ infoOrder.dateOrdered }}
+          </b>
+        </el-col>
+        <el-col :span="24">
+          <span
+            style="float: left"
+          >
+            {{ $t('form.pos.order.type') + ':' }}
+          </span>
+          <b style="float: right">
+            {{ infoOrder.documentType.name }}
+          </b>
+        </el-col>
+        <el-col :span="24">
+          <span
+            style="float: left"
+          >
+            {{ $t('form.pos.order.itemQuantity') + ':' }}
+          </span>
+        </el-col>
+        <el-col :span="24" style="margin: 0px;">
+          <span
+            style="float: left"
+          >
+            {{ $t('form.pos.order.numberLines') + ':' }}
+          </span>
+        </el-col>
+      </el-row>
     </el-col>
     <el-col
-      :span="8"
-      class="order-info"
+      :span="10"
+      style="float: right"
     >
-      <p style="margin-top: 0px;">
-        {{ $t('form.pos.order.order') + ':' }}
-        <b>
-          {{ order.documentNo }}
-        </b>
-      </p>
-      <p>
-        {{ $t('form.pos.order.subTotal') + ':' }}
-      </p>
-      <p>
-        {{ $t('form.pos.tableProduct.displayDiscountAmount') + ':' }}
-      </p>
-      <p>
-        {{ $t('form.pos.order.tax') + ':' }}
-      </p>
-      <p style="margin: 0px;">
-        {{ $t('form.pos.order.total') }}
-      </p>
+      <el-row>
+        <el-col :span="24" style="margin-top: 0px;">
+          <span
+            style="float: left"
+          >
+            {{ $t('form.pos.order.seller') + ':' }}
+          </span>
+          <b style="float: right">
+            {{ infoOrder.salesRepresentative.name }}
+          </b>
+        </el-col>
+        <el-col :span="24">
+          <span
+            style="float: left"
+          >
+            {{ $t('form.pos.order.subTotal') + ':' }}
+          </span>
+          <b style="float: right">
+            {{ infoOrder.totalLines }}
+          </b>
+        </el-col>
+        <el-col :span="24">
+          <span
+            style="float: left"
+          >
+            {{ $t('form.pos.tableProduct.displayDiscountAmount') + ':' }}
+          </span>
+          <b style="float: right">
+            {{ infoOrder.discountAmount }}
+          </b>
+        </el-col>
+        <el-col :span="24">
+          <span
+            style="float: left"
+          >
+            {{ $t('form.pos.order.tax') + ':' }}
+          </span>
+          <b style="float: right">
+            {{ infoOrder.taxAmount }}
+          </b>
+        </el-col>
+        <el-col
+          :span="24"
+          class="total"
+        >
+          <span
+            style="float: left"
+          >
+            {{ $t('form.pos.order.total') }}
+          </span>
+          <b style="float: right">
+            {{ infoOrder.grandTotal }}
+          </b>
+        </el-col>
+      </el-row>
     </el-col>
   </el-row>
 </template>
@@ -66,16 +134,49 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
 import { defineComponent, computed } from '@vue/composition-api'
 import store from '@/store'
 
+// Utils and Helper Methods
+import { isEmptyValue } from '@/utils/ADempiere'
+
 export default defineComponent({
   name: 'infoOrder',
   setup() {
-    const order = computed(() => {
-      console.log(store.getters.getPoint)
-      return store.getters.getPoint.order
+    const infoOrder = computed(() => {
+      const order = store.getters.getCurrentOrder
+      if (
+        !isEmptyValue(order) &&
+        !isEmptyValue(order.uuid)
+      ) {
+        return {
+          documentNo: order.documentNo,
+          salesRepresentative: order.salesRepresentative,
+          totalLines: order.totalLines,
+          discountAmount: order.discountAmount,
+          taxAmount: order.taxAmount,
+          grandTotal: order.grandTotal,
+          dateOrdered: order.dateOrdered,
+          documentType: order.documentType
+        }
+      }
+      return {
+        documentNo: '',
+        salesRepresentative: {
+          id: null,
+          name: ''
+        },
+        documentType: {
+          id: null,
+          name: ''
+        },
+        discountAmount: null,
+        totalLines: null,
+        taxAmount: null,
+        grandTotal: null,
+        dateOrdered: ''
+      }
     })
-    store.dispatch('getOrder')
+
     return {
-      order
+      infoOrder
     }
   }
 })
@@ -83,6 +184,11 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .order-info {
-  text-align: right;
+  float: right;
+}
+.total {
+  border: 1px solid rgb(54, 163, 247);
+  border-radius: 5px;
+  margin: 0px;
 }
 </style>

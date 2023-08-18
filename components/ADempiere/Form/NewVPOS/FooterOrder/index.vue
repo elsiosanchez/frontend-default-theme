@@ -61,5 +61,7 @@ export default defineComponent({
 }
 .order-info {
   text-align: right;
+  border: 1px solid #d3d4d6;
+  border-radius: 10px;
 }
 </style>
