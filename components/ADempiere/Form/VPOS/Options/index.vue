@@ -434,6 +434,49 @@
               </el-popover>
             </el-card>
           </el-col>
+
+          <!-- ApplyDiscountAllLineOff -->
+          <el-col :span="size" style="padding-left: 12px;padding-right: 12px;padding-bottom: 10px;">
+            <el-card shadow="hover">
+              <el-popover
+                width="350"
+                title="Aplicar Descuento a Todas las Lineas"
+                placement="top"
+              >
+                <div style="padding: 20px;">
+                  <apply-discount-all-line
+                    ref="salesDiscountOff"
+                    v-shortkey="showSalesDiscount ? {close: ['esc'], enter: ['enter']} : {}"
+                    @shortkey.native="theActionSalesDiscountOff"
+                  />
+                </div>
+                <!-- <div style="text-align: right; margin: 0">
+                  <el-button
+                    type="danger"
+                    class="custom-button-create-bp"
+                    icon="el-icon-close"
+                    @click="showSalesDiscount = false"
+                  />
+                  <el-button
+                    type="primary"
+                    class="custom-button-create-bp"
+                    icon="el-icon-check"
+                    @click="salesDiscount(discountRateOff)"
+                  />
+                </div> -->
+                <el-button
+                  slot="reference"
+                  type="text"
+                  :disabled="isOptionPopoverDiscuent"
+                  :class="classOptionPopoverDiscuent"
+                >
+                  <i class="el-icon-document-remove" />
+                  <br>
+                  {{ 'Aplicar Descuento a Todas las Lineas' }}
+                </el-button>
+              </el-popover>
+            </el-card>
+          </el-col>
         </el-row>
       </el-collapse-item>
 
@@ -644,6 +687,7 @@ import CashWithdrawal from './Cashwithdrawal'
 import DiscountOrder from './DiscountOrder'
 import AssignSeller from './AssignSeller'
 import SalesDiscountOff from './SalesDiscountOff'
+import ApplyDiscountAllLine from './ApplyDiscountAllLine'
 import MnemonicCommand from './MnemonicCommand'
 import ModalDialog from '@theme/components/ADempiere/Dialog'
 import GeneralOptions from '@theme/components/ADempiere/Form/VPOS/Options/generalOptions.vue'
@@ -684,6 +728,7 @@ export default {
     ModalDialog,
     SalesDiscountOff,
     DiscountOrder,
+    ApplyDiscountAllLine,
     OrdersList,
     TableTimeControl,
     MnemonicCommand,
