@@ -24,8 +24,9 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
     highlight-current-row
     style="height: 100% !important;"
   >
-    <template v-for="(valueOrder, item, key) in orderLineDefinition">
+    <template>
       <el-table-column
+        v-for="(valueOrder, key) in orderLineDefinition"
         :key="key"
         :column-key="valueOrder.columnName"
         :label="valueOrder.label"

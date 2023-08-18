@@ -18,15 +18,11 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
 
 <template>
   <el-main
-    v-shortkey="shortsKey"
     class="product-list-content"
-    @shortkey.native="keyAction"
   >
     <el-form
-      v-shortkey="shortsKey"
       label-position="top"
       label-width="10px"
-      @shortkey.native="keyAction"
       @submit.native.prevent="notSubmitForm"
     >
       <el-form-item :label="$t('form.productInfo.codeProduct')">
@@ -38,23 +34,23 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
         />
       </el-form-item>
     </el-form>
-
     <el-table
-      ref="listProducto"
-      v-shortkey="shortsKey"
-      v-loading="isLoadingRecords"
-      :data="localTableSearch(listWithPrice)"
+      v-loading="isLoading"
+      :data="listProducto"
       :empty-text="$t('quickAccess.searchWithEnter')"
-      :border="true"
-      fit
-      height="450"
       highlight-current-row
-      @row-click="selectProduct"
-      @row-dblclick="addSelectProduct"
-      @shortkey.native="keyAction"
+      :border="true"
+      height="450"
+      fit
+      @row-dblclick="addProduct"
     >
+      <index-column
+        :page-number="1"
+        :page-size="50"
+      />
       <el-table-column
         :label="$t('form.productInfo.code')"
+        width="190"
       >
         <template slot-scope="scope">
           <el-button
@@ -68,6 +64,7 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
       <el-table-column
         prop="product.name"
         :label="$t('form.productInfo.name')"
+        min-width="200"
       />
       <el-table-column
         prop="quantityOnHand"
@@ -79,7 +76,7 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
         align="right"
       >
         <template slot-scope="scope">
-          {{ formatPrice({ value: scope.row.priceStandard, currency: scope.row.currency.iSOCode }) }}
+          {{ displayAmount(scope.row) }}
         </template>
       </el-table-column>
       <el-table-column
@@ -87,323 +84,115 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
         align="right"
       >
         <template slot-scope="scope">
-          {{ formatPrice({ value: scope.row.schemaPriceStandard, currency: scope.row.schemaCurrency.iSOCode }) }}
+          {{ displayAmount(scope.row) }}
         </template>
       </el-table-column>
     </el-table>
-
-    <el-row :gutter="24" class="products-list-footer">
-      <el-col :span="18">
-        <custom-pagination
-          :total="productPrice.recordCount"
-          :current-page="productPrice.pageNumber"
-          :handle-change-page="handleChangePage"
-          :records-page="listWithPrice.length"
-        />
-      </el-col>
-
-      <el-col :span="6">
-        <samp style="float: right; padding-right: 10px;">
-          <el-button
-            :loading="isLoadingRecords"
-            type="success"
-            class="button-base-icon"
-            icon="el-icon-refresh-right"
-            @click="loadProductsPricesList"
-          />
-          <el-button
-            type="danger"
-            class="button-base-icon"
-            icon="el-icon-close"
-            @click="close"
-          />
-          <el-button
-            type="primary"
-            class="button-base-icon"
-            icon="el-icon-check"
-            @click="addProductFromList"
-          />
-        </samp>
-      </el-col>
-    </el-row>
+    <p>
+      <el-button
+        type="danger"
+        class="button-base-icon"
+        icon="el-icon-close"
+        @click="close(false)"
+      />
+    </p>
   </el-main>
 </template>
 
 <script>
+import { defineComponent, computed, ref } from '@vue/composition-api'
+import store from '@/store'
 // Components and Mixins
-import formMixin from '@theme/components/ADempiere/Form/formMixin.js'
-import CustomPagination from '@theme/components/ADempiere/DataTable/Components/CustomPagination.vue'
-import posMixin from '@theme/components/ADempiere/Form/VPOS/posMixin.js'
-
+import IndexColumn from '@theme/components/ADempiere/DataTable/Components/IndexColumn.vue'
 // Utils and Helper Methods
-// import fieldsListProductPrice from './fieldsList.js'
-import { formatPrice } from '@/utils/ADempiere/formatValue/numberFormat'
+import { isEmptyValue } from '@/utils/ADempiere'
 import { copyToClipboard } from '@/utils/ADempiere/coreUtils.js'
+import { formatPrice } from '@/utils/ADempiere/formatValue/numberFormat'
 
-export default {
-  name: 'ProductList',
-
+export default defineComponent({
+  name: 'ProductListTable',
   components: {
-    CustomPagination
+    IndexColumn
   },
-
-  mixins: [
-    formMixin,
-    posMixin
-  ],
-
-  props: {
-    metadata: {
-      type: Object,
-      default: () => {
-        return {
-          uuid: 'Products-Price-List',
-          containerUuid: 'Products-Price-List'
-        }
-      }
-    },
-    isSelectable: {
-      type: Boolean,
-      default: true
-    },
-    popoverName: {
-      type: String,
-      default: 'isShowPopoverField'
-    }
-  },
-
-  data() {
-    return {
-      // fieldsList: fieldsListProductPrice,
-      isLoadingRecords: false,
-      isCustomForm: true,
-      currentProduct: {},
-      isSearchProduct: false,
-      timeOut: null
-    }
-  },
-
-  computed: {
-    isShowProductsPriceList() {
-      return this.$store.state['pointOfSales/listProductPrice'].productPrice[this.attribute]
-    },
-    currentPointOfSales() {
-      return this.$store.getters.posAttributes.currentPointOfSales
-    },
-    productListPrice() {
-      return this.$store.getters.getProductPrice
-    },
-    showProductList: {
-      get() {
-        return this.$store.getters.getShowProductList
-      },
-      set(value) {
-        this.$store.commit('setShowProductList', value)
-      }
-    },
-    listWithPrice() {
-      const { productPricesList } = this.productListPrice
-      if (!this.isEmptyValue(productPricesList)) {
-        return productPricesList
-      }
-      return []
-    },
-    shortsKey() {
-      return {
-        closeProductList: ['esc'],
-        refreshList: ['f5']
-      }
-    },
-    isReadyFromGetData() {
-      const { isLoaded, isReload } = this.productListPrice
-      return (!isLoaded || isReload) // && this.isShowProductsPriceList
-    },
-    searchValue: {
-      set(value) {
-        this.$store.commit('updateValueOfField', {
-          containerUuid: this.metadata.containerUuid,
-          columnName: 'ProductValue',
-          value
-        })
-
-        // refresh search
-        if (this.isEmptyValue(value)) {
-          this.loadProductsPricesList()
-        }
-      },
-      get() {
-        return this.$store.getters.getValueOfField({
-          containerUuid: this.metadata.containerUuid,
-          columnName: 'ProductValue'
-        })
-      }
-    }
-  },
-
-  watch: {
-    showProductList(newValue, oldValue) {
-      if (newValue && !this.isLoadingRecords && this.isEmptyValue(this.listWithPrice)) {
-        this.loadProductsPricesList()
-      }
-    }
-  },
-
-  created() {
-    this.$store.commit('setListProductPrice', {
-      isLoaded: false
+  setup() {
+    const searchValue = ref('')
+    const isLoading = ref(false)
+    let timeoutSearch
+    const listProducto = computed(() => {
+      return store.getters.getProductList
     })
-    this.timeOut = setTimeout(() => {
-      this.validatePos(this.currentPointOfSales)
-    }, 3000)
-  },
 
-  methods: {
-    formatPrice,
-    localTableSearch(listWithPrice) {
-      let filtersProduct = []
-      if (!this.isEmptyValue(this.searchValue) && this.isSearchProduct) {
-        filtersProduct = listWithPrice.filter(data => data.product.name.toLowerCase().includes(this.searchValue.toLowerCase()) || data.product.value.toLowerCase().includes(this.searchValue.toLowerCase()))
-        if (!this.isEmptyValue(filtersProduct)) {
-          this.isSearchProduct = true
-          return filtersProduct
-        }
+    const order = computed(() => {
+      return store.getters.getPoint.order
+    })
 
-        if (this.isSearchProduct) {
-          this.isLoadingRecords = true
-          this.timeOut = setTimeout(() => {
-            this.$store.dispatch('listProductPriceFromServer', {
-              containerUuid: this.metadata.containerUuid,
-              pageNumber: 1,
-              searchValue: this.searchValue
-            })
-              .then(() => {
-                const recordsList = this.listWithPrice
-
-                if (this.isEmptyValue(recordsList)) {
-                  this.$message({
-                    message: this.$t('notifications.searchWithOutRecords'),
-                    type: 'info',
-                    showClose: true
-                  })
-                  this.isSearchProduct = false
-                  return recordsList
-                }
-                this.isSearchProduct = false
-                return recordsList
-              })
-              .finally(() => {
-                this.isLoadingRecords = false
-              })
-          }, 2000)
-        }
-      }
-      return listWithPrice
-    },
-    keyAction(event) {
-      switch (event.srcKey) {
-        case 'refreshList':
-          /**
-           * TODO: When refreshing you are making 2 list requests, you can be the
-           * observer that activates the second request
-          */
-          this.loadProductsPricesList()
-          break
-
-        case 'closeProductList':
-          this.close()
-          break
-      }
-    },
-    loadProductsPricesList() {
-      this.isLoadingRecords = true
-      this.$store.dispatch('listProductPriceFromServer', {})
-        .finally(() => {
-          this.isLoadingRecords = false
-        })
-    },
-    /**
-     * @param {number} newPage
-     */
-    handleChangePage(newPage) {
-      this.$store.dispatch('setProductPicePageNumber', newPage)
-      this.loadProductsPricesList()
-    },
-    selectProduct(row) {
-      this.currentProduct = row
-    },
-    addSelectProduct(row) {
-      this.findProduct(row.product.value)
-      this.close()
-    },
-    close() {
-      // this.$store.commit('showListProductPrice', {
-      //   attribute: this.popoverName,
-      //   isShowed: false
-      // })
-      this.showProductList = false
-      this.$store.commit('setDialogoComponent', false)
-    },
-    addProductFromList() {
-      if (!this.isSelectable) {
-        return
-      }
-      this.findProduct(this.currentProduct.product.value)
-
-      // close popover of list product price
-      this.close()
-      this.$store.commit('showListProductPrice', {
-        attribute: this.popoverName,
-        isShowed: false
-      })
-    },
-    searchProduct(value) {
-      clearTimeout(this.timeOut)
-      this.timeOut = setTimeout(() => {
-        this.isSearchProduct = true
-        this.$store.commit('updateValueOfField', {
-          containerUuid: this.metadata.containerUuid,
-          columnName: 'ProductValue',
-          value: value
-        })
-      }, 500)
-    },
-    /**
-     * @param {object} PointOfSales
-     */
-    validatePos(PointOfSales) {
-      if (this.isEmptyValue(PointOfSales)) {
-        const message = this.$t('notifications.errorPointOfSale')
-        this.$store.commit('setListProductPrice', {
-          isLoaded: true,
-          productPricesList: []
-        })
-        this.$message({
-          type: 'info',
-          message,
-          duration: 1500,
-          showClose: true
-        })
-      }
-    },
-    copyCode(row) {
+    function copyCode(row) {
       copyToClipboard({
         text: row.product.value,
         isShowMessage: true
       })
     }
+
+    function searchProduct(search) {
+      clearTimeout(timeoutSearch)
+      isLoading.value = true
+      timeoutSearch = setTimeout(() => {
+        store.dispatch('searchProductList', {
+          searchValue: search,
+          pageSize: 50
+        })
+          .finally(() => {
+            isLoading.value = false
+          })
+      }, 1000)
+    }
+
+    function displayAmount(row) {
+      const {
+        priceStandard,
+        currency
+      } = row
+      return formatPrice({ value: priceStandard, currency: currency.iSOCode })
+    }
+
+    function addProduct(row) {
+      if (isEmptyValue(order.value)) {
+        store.dispatch('newOrder')
+          .finally(() => {
+            store.dispatch('newLine', row)
+              .finally(() => {
+                close(false)
+              })
+          })
+      }
+    }
+
+    function close(show = false) {
+      store.commit('setShowProductList', show)
+    }
+
+    return {
+      // Ref
+      searchValue,
+      isLoading,
+      // Computed
+      listProducto,
+      // Methods
+      displayAmount,
+      searchProduct,
+      addProduct,
+      copyCode,
+      close
+    }
   }
-}
+})
 </script>
 
 <style lang="scss">
 .product-list-content {
   padding-top: 0px;
-
-  /**
-    * Reduce the spacing between the form element and its label
-    */
-  .el-form-item__label {
-    padding-bottom: 0px;
-  }
+}
+.el-autocomplete-suggestion li {
+  line-height: 20px;
 }
 </style>

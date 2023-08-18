@@ -22,10 +22,28 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
     @submit.native.prevent="notSubmitForm"
   >
     <el-form-item
-      style="width: 100% !important;"
+      style="width: 100% !important;display: contents;"
     >
       <template slot="label">
-        {{ $t('form.productInfo.codeProduct') }}
+        <span class="label">
+          {{ $t('form.productInfo.codeProduct') }}
+          <el-popover
+            :value="show"
+            style="color: black"
+            trigger="click"
+            width="1250"
+            @show="showPopever"
+          >
+            <product-list-table />
+            <el-button
+              slot="reference"
+              type="text"
+              style="color: black"
+            >
+              <svg-icon icon-class="search" />
+            </el-button>
+          </el-popover>
+        </span>
       </template>
       <el-autocomplete
         v-model="searchProduct"
@@ -77,6 +95,8 @@ import {
   ref
 } from '@vue/composition-api'
 import store from '@/store'
+// Components and Mixins
+import ProductListTable from './ProductListTable'
 // utils and helper methods
 import {
   formatPrice,
@@ -86,6 +106,9 @@ import { isEmptyValue } from '@/utils/ADempiere'
 
 export default defineComponent({
   name: 'SearchProduct',
+  components: {
+    ProductListTable
+  },
   setup() {
     const searchProduct = ref('')
     const productList = ref([])
@@ -95,12 +118,25 @@ export default defineComponent({
       return store.getters.getPoint.order
     })
 
+    const show = computed({
+      get() {
+        return store.getters.getShowProductList
+      },
+      // setter
+      set(show) {
+        console.log({ show })
+        store.commit('setShowProductList', show)
+      }
+    })
+
     function localSearch(search, callBack) {
       if (search !== '') {
         isLoading.value = true
         setTimeout(() => {
           productList.value = []
-          store.dispatch('searchProductList', search)
+          store.dispatch('searchProductList', {
+            searchValue: search
+          })
             .then(response => {
               productList.value = response.map(list => {
                 return {
@@ -112,9 +148,6 @@ export default defineComponent({
               callBack(productList.value)
               isLoading.value = false
             })
-          // this.options = this.list.filter(item => {
-          //   return item.label.toLowerCase().indexOf(query.toLowerCase()) > -1
-          // })
         }, 200)
       } else {
         this.options = []
@@ -126,7 +159,6 @@ export default defineComponent({
         !isEmptyValue(search) &&
         !isEmptyValue(search.value)
       ) {
-        // console.log({ ...search }, productList.value.length)
         isTrigger.value = true
       }
       if (
@@ -134,15 +166,18 @@ export default defineComponent({
         !isEmptyValue(search.product)
       ) {
         isTrigger.value = false
-        // store.dispatch('Line', )
+        // store.dispatch('Line' )
         if (isEmptyValue(order.value)) {
           store.dispatch('newOrder')
             .then(() => {
               store.dispatch('newLine', search)
             })
         }
-        // console.log({ ...search }, order.value, productList.value.length)
       }
+    }
+
+    function showPopever() {
+      show.value = true
     }
 
     watch(productList, (newValue, oldValue) => {
@@ -151,13 +186,6 @@ export default defineComponent({
       }
     })
 
-    // function findFilter(queryString) {
-    //   return (query) => {
-    //     const search = queryString.toLowerCase()
-    //     return query.label.toLowerCase().includes(search)
-    //   }
-    // }
-
     return {
       isTrigger,
       isLoading,
@@ -165,7 +193,9 @@ export default defineComponent({
       searchProduct,
       // Computed
       order,
+      show,
       // Methods
+      showPopever,
       localSearch,
       selectProduct
     }
@@ -174,19 +204,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.buttons-and-options {
-  text-align: left;
-}
-.order-info {
-  text-align: right;
-}
-.el-select-dropdown__item{
+.label {
   display: contents;
-  padding: 10px 0px;
-}
-</style>
-<style lang="scss">
-.el-autocomplete-suggestion li {
-  line-height: 19px;
 }
 </style>
