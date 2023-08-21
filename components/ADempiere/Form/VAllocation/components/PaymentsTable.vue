@@ -17,76 +17,71 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
 -->
 
 <template>
-  <span>
-    <!-- <h2>
-      {{ diference }} | {{ sumApplied }}
-    </h2> -->
-    <el-table
-      id="listPaymentsTable"
-      ref="listPaymentsTable"
-      v-loading="isLoadingPayments"
-      :data="listPayments"
-      border
-      :max-height="panelInvoce"
-      element-loading-background="rgba(255, 255, 255, 0.8)"
-      :element-loading-text="$t('notifications.loading')"
-      @select="selectionsPayments"
-      @select-all="selectionsPaymentsAll"
+  <el-table
+    id="listPaymentsTable"
+    ref="listPaymentsTable"
+    v-loading="isLoadingPayments"
+    :data="listPayments"
+    border
+    style="width: 100%;height: 100%;"
+    :element-loading-text="$t('notifications.loading')"
+    element-loading-background="rgba(255, 255, 255, 0.8)"
+    @select="selectionsPayments"
+    @select-all="selectionsPaymentsAll"
+  >
+    <el-table-column
+      type="selection"
+      fixed
+      width="40"
+    />
+    <el-table-column
+      v-for="(header, key) in headersPayments"
+      :key="key"
+      prop="id"
+      :align="header.align"
+      :min-width="header.width"
+      :label="header.label"
     >
-      <el-table-column
-        type="selection"
-        fixed
-        width="40"
-      />
-      <el-table-column
-        v-for="(header, key) in headersPayments"
-        :key="key"
-        prop="id"
-        :align="header.align"
-        min-width="210"
-        :label="header.label"
-      >
-        <template slot-scope="scope">
-          <span v-if="(header.columnName === 'organization' || header.columnName === 'transaction_type')">
-            {{ scope.row[header.columnName].name }}
-          </span>
-          <span v-else-if="isCellInput(header)">
-            <el-input-number
-              v-model="scope.row[header.columnName]"
-              controls-position="right"
-            />
-          </span>
-          <span v-else>
-            <p
-              v-if="scope.row[header.columnName].length < 13 || (typeof scope.row[header.columnName] === 'number')"
-              style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;line-height: 12px;"
+      <template slot-scope="scope">
+        <span v-if="(header.columnName === 'organization' || header.columnName === 'transaction_type')">
+          {{ scope.row[header.columnName].name }}
+        </span>
+        <span v-else-if="isCellInput(header)">
+          <el-input-number
+            v-model="scope.row[header.columnName]"
+            controls-position="right"
+          />
+        </span>
+        <span v-else>
+          <p
+            v-if="scope.row[header.columnName].length < 13 || (typeof scope.row[header.columnName] === 'number')"
+            style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;line-height: 12px;margin: 0px;"
+          >
+            {{ scope.row[header.columnName] }}
+          </p>
+          <p
+            v-else
+            style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;line-height: 12px;margin: 0px;"
+          >
+            <el-popover
+              placement="top-start"
+              trigger="hover"
+              width="300"
             >
               {{ scope.row[header.columnName] }}
-            </p>
-            <p
-              v-else
-              style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;line-height: 12px;"
-            >
-              <el-popover
-                placement="top-start"
-                trigger="hover"
-                width="300"
+              <p
+                slot="reference"
+                type="text"
+                style="color: #606266;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;line-height: 12px;margin: 0px;"
               >
                 {{ scope.row[header.columnName] }}
-                <p
-                  slot="reference"
-                  type="text"
-                  style="color: #606266;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;line-height: 12px;"
-                >
-                  {{ scope.row[header.columnName] }}
-                </p>
-              </el-popover>
-            </p>
-          </span>
-        </template>
-      </el-table-column>
-    </el-table>
-  </span>
+              </p>
+            </el-popover>
+          </p>
+        </span>
+      </template>
+    </el-table-column>
+  </el-table>
 </template>
 
 <script>
@@ -127,7 +122,7 @@ export default defineComponent({
      * Refs
      */
     const listPaymentsTable = ref(null)
-    const panelInvoce = ref(250)
+    const panelInvoce = ref(100)
     /**
      * computed
      */
@@ -343,8 +338,8 @@ export default defineComponent({
 </style>
 <style>
 .el-table--scrollable-x .el-table__body-wrapper {
-height: 90%;
-overflow-x: auto;
+  height: 90%;
+  overflow: auto;
 }
 /* .el-card__header {
 padding-top: 5px;

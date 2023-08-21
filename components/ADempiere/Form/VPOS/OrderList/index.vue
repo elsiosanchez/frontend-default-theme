@@ -535,7 +535,7 @@ export default {
             action: this.changeOrder.uuid
           }
         }, () => {})
-        const orderUuid = this.$store.getters.posAttributes.currentPointOfSales.currentOrder.uuid
+        const orderUuid = this.changeOrder.uuid
         this.$store.dispatch('listPayments', { posUuid, orderUuid })
       }
       if (this.changeOrder.documentStatus.value === 'DR') {

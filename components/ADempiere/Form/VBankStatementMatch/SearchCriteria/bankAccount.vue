@@ -25,10 +25,11 @@
   >
     <el-select
       v-model="bankAccountValue"
+      :remote-method="remoteSearch"
+      style="width: 100%;"
       filterable
       clearable
-      style="width: 100%;"
-      :remote-method="remoteSearch"
+      disabled
       @visible-change="getBanksAccountsList"
       @clear="clearValues"
     >
@@ -65,11 +66,11 @@ export default defineComponent({
     })
 
     const bankAccountValue = computed({
-      set(newValue) {
-        store.commit('setBankAccountId', newValue)
-      },
       get() {
         return store.getters.getBankAccountValueStatementMatch
+      },
+      set(newValue) {
+        store.commit('setBankAccountId', newValue)
       }
     })
 
@@ -114,7 +115,7 @@ export default defineComponent({
 
     onMounted(() => {
       getBanksAccountsList(true)
-      if (!isEmptyValue(bankAccountFromBankStatement)) {
+      if (!isEmptyValue(bankAccountFromBankStatement.value)) {
         bankAccountValue.value = bankAccountFromBankStatement.value
       }
     })

@@ -20,7 +20,7 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
   <div style="display: contents;height: 100% !important;">
     <div style="height: 89% !important;">
       <el-card id="panel-top-search-criteria" class="panel-top-search-criteria" style="height: 100%;display: block;">
-        <div style="width: 100%;height: 40%;">
+        <div style="width: 100%;">
           <el-card style="padding: 5px 10px 5px 10px;height: 100%;">
             <div slot="header" class="clearfix" style="text-align: center;">
               <b> {{ $t('form.VAllocation.payment.title') }} </b>
@@ -210,7 +210,7 @@ export default defineComponent({
     /**
      * Refs
      */
-    const optionsOrganizations = ref([])
+    // const optionsOrganizations = ref([])
     const listPaymentsTable = ref(null)
     const listInvocesTable = ref(null)
     const optionsCharges = ref([])
@@ -430,6 +430,22 @@ export default defineComponent({
       const currentViews = listViews.find(list => list.name === currentRoute.name)
       setToggleSelection()
       return currentViews
+    })
+
+    const optionsOrganizations = computed({
+      // getter
+      get() {
+        const { listOrganization } = store.getters.getSearchFilter
+        return listOrganization
+      },
+      // setter
+      set(list) {
+        store.commit('updateAttributeCriteriaVallocation', {
+          attribute: 'listOrganization',
+          criteria: 'searchCriteria',
+          value: list
+        })
+      }
     })
 
     /**
@@ -831,14 +847,15 @@ export default defineComponent({
       height: 100%!important;
     }
   }
-  .el-table .cell {
-    word-break: break-all;
-    padding-left: 10px;
-    padding-right: 10px;
-    overflow: hidden;
+  .el-table .el-table__cell {
+    padding: 2px 0px !important;
+    min-width: 0;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
     text-overflow: ellipsis;
-    white-space: nowrap;
-    line-height: 12px;
+    vertical-align: middle;
+    position: relative;
+    text-align: left;
   }
 </style>
 <style>

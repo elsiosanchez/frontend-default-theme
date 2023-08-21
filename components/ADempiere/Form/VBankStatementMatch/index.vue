@@ -18,7 +18,7 @@
 
 <template>
   <div style="height: -webkit-fill-available;">
-    <div style="height: 10% !important;">
+    <div style="height: 6% !important;">
       <el-steps :active="currentSetp" finish-status="success">
         <el-step
           v-for="(list, key) in stepList"
@@ -27,7 +27,7 @@
         />
       </el-steps>
     </div>
-    <div style="height: 80% !important;">
+    <div style="height: 88% !important;">
       <transition name="el-fade-in-linear">
         <search-criteria
           v-if="currentSetp === 1"
@@ -42,7 +42,7 @@
         />
       </transition>
     </div>
-    <div style="height: 5% !important;text-align: end;">
+    <div style="height: 6% !important;text-align: end;">
       <el-button
         v-if="!isNext"
         type="info"
@@ -59,7 +59,27 @@
         icon="el-icon-check"
         class="button-base-icon"
         style="float: right;"
-        disabled
+        :disabled="isProcess"
+        :loading="isLoadingProcess"
+        @click="process"
+      />
+      <el-button
+        v-if="!isUnMatch"
+        plain
+        type="primary"
+        class="button-base-icon"
+        icon="el-icon-document-delete"
+        :disabled="isUnMatch"
+        style="margin-left: 10px;"
+        @click="unMatch"
+      />
+      <el-button
+        v-if="currentSetp === 2"
+        type="success"
+        class="button-base-icon"
+        icon="el-icon-refresh-right"
+        :loading="isLoading"
+        @click="refreshSearch"
       />
       <el-button
         type="info"
@@ -75,7 +95,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed, onMounted } from '@vue/composition-api'
+import { defineComponent, ref, computed, onMounted, watch } from '@vue/composition-api'
 
 import lang from '@/lang'
 import store from '@/store'
@@ -122,9 +142,6 @@ export default defineComponent({
       {
         name: lang.t('form.VBankStatementMatch.steps.searchCriteria')
       },
-      // {
-      //   name: lang.t('form.VBankStatementMatch.steps.automaticMatch')
-      // },
       {
         name: lang.t('form.VBankStatementMatch.steps.pendingMatch')
       },
@@ -133,6 +150,12 @@ export default defineComponent({
       }
     ])
 
+    const isLoading = ref(false)
+    const isLoadingProcess = ref(false)
+
+    /**
+    * Computed
+    */
     const currentSetp = computed({
       set(newValue) {
         store.commit('bankStatementMatchStep', newValue)
@@ -142,9 +165,6 @@ export default defineComponent({
       }
     })
 
-    /**
-    * Computed
-    */
     const isBack = computed(() => {
       return currentSetp.value === 1
     })
@@ -172,6 +192,46 @@ export default defineComponent({
       return false
     })
 
+    const isProcess = computed(() => {
+      const { list } = store.getters.getResult
+      return isEmptyValue(list)
+    })
+
+    const isUnMatch = computed(() => {
+      const { listUnMatch } = store.getters.getListMatchingMovements
+      return isEmptyValue(listUnMatch)
+    })
+
+    function unMatch() {
+      store.dispatch('listUnMatch')
+    }
+
+    function process() {
+      isLoadingProcess.value = true
+      store.dispatch('processBankStatementMatch')
+        .finally(() => {
+          isLoadingProcess.value = false
+        })
+    }
+
+    function refreshSearch() {
+      isLoading.value = true
+      store.dispatch('searchListImportedBankMovements', {})
+      store.dispatch('getPaymentsListFromServer', {})
+        .finally(() => {
+          isLoading.value = false
+        })
+    }
+
+    watch(currentSetp, (newValue, oldValue) => {
+      if (newValue === 2) {
+        store.dispatch('getMatchingMovementsListFromServer', {})
+      }
+      if (newValue === 3) {
+        store.dispatch('resultMovements')
+      }
+    })
+
     onMounted(() => {
       const { Record_ID } = root.$route.query
       if (!isEmptyValue(Record_ID) && storedBankStatementId.value !== Number(Record_ID)) {
@@ -182,13 +242,21 @@ export default defineComponent({
     })
 
     return {
+      isLoading,
       stepList,
       currentSetp,
       isBack,
       isNext,
       label,
       initialSept,
-      isDisabledNext
+      isProcess,
+      isDisabledNext,
+      isLoadingProcess,
+      isUnMatch,
+      // Methods
+      unMatch,
+      process,
+      refreshSearch
     }
   }
 })

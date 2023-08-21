@@ -1,6 +1,6 @@
 <!--
  ADempiere-Vue (Frontend) for ADempiere ERP & CRM Smart Business Solution
- Copyright (C) 2017-Present E.R.P. Consultores y Asociados, C.A. www.erpya.com
+ Copyright (C) 2018-Present E.R.P. Consultores y Asociados, C.A. www.erpya.com
  Contributor(s): Edwin Betancourt EdwinBetanc0urt@outlook.com https://github.com/EdwinBetanc0urt
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -184,21 +184,18 @@ export default {
   },
 
   computed: {
-    isShowProductsPriceList() {
-      return this.$store.state['pointOfSales/listProductPrice'].productPrice[this.attribute]
-    },
     currentPointOfSales() {
       return this.$store.getters.posAttributes.currentPointOfSales
     },
     productListPrice() {
       return this.$store.getters.getProductPrice
     },
-    showProductList: {
+    isShowProductsPriceList: {
       get() {
-        return this.$store.getters.getShowProductList
+        return this.$store.getters.getShowProductPriceList
       },
-      set(value) {
-        this.$store.commit('setShowProductList', value)
+      set(newValue) {
+        this.$store.commit('setIsShowListProductPrice', newValue)
       }
     },
     listWithPrice() {
@@ -241,7 +238,8 @@ export default {
   },
 
   watch: {
-    showProductList(newValue, oldValue) {
+    isShowProductsPriceList(newValue, oldValue) {
+      // TODO: This is calling 2 request
       if (newValue && !this.isLoadingRecords && this.isEmptyValue(this.listWithPrice)) {
         this.loadProductsPricesList()
       }
@@ -249,9 +247,6 @@ export default {
   },
 
   created() {
-    this.$store.commit('setListProductPrice', {
-      isLoaded: false
-    })
     this.timeOut = setTimeout(() => {
       this.validatePos(this.currentPointOfSales)
     }, 3000)
@@ -336,11 +331,8 @@ export default {
       this.close()
     },
     close() {
-      // this.$store.commit('showListProductPrice', {
-      //   attribute: this.popoverName,
-      //   isShowed: false
-      // })
-      this.showProductList = false
+      // this.$store.commit('setIsShowListProductPrice', false)
+      this.isShowProductsPriceList = false
       this.$store.commit('setDialogoComponent', false)
     },
     addProductFromList() {
@@ -351,10 +343,6 @@ export default {
 
       // close popover of list product price
       this.close()
-      this.$store.commit('showListProductPrice', {
-        attribute: this.popoverName,
-        isShowed: false
-      })
     },
     searchProduct(value) {
       clearTimeout(this.timeOut)

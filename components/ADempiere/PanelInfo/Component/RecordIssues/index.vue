@@ -128,8 +128,25 @@
                                   {{ $t('issues.assigned') }}
                                 </b>
                               </template>
-                              {{ scope.row.sales_representative.name }}
-                              <el-avatar icon="el-icon-user-solid" size="small" style="margin-left: 10px;" />
+                              <svg-icon v-if="isEmptyValue(scope.row.sales_representative.avatar)" icon-class="user" />
+                              <el-image
+                                :src="avatarResize(scope.row.sales_representative)"
+                                fit="contain"
+                                style="
+                                  width: 20px;
+                                  height: 20px;
+                                  cursor: default;
+                                  border-radius: 50%;
+                                  position: relative;
+                                  display: inline-block;
+                                  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+                                  margin-right: 5px;
+                                "
+                              />
+                              <b style="padding-left: 5px;">
+                                {{ scope.row.sales_representative.name }}
+                              </b>
+                              <!-- <el-avatar icon="el-icon-user-solid" size="small" style="margin-left: 10px;" /> -->
                             </el-descriptions-item>
                             <el-descriptions-item>
                               <template slot="label">
@@ -148,10 +165,8 @@
                                   {{ $t('issues.nextActionDate') }}
                                 </b>
                               </template>
-                              <span v-if="scope.row.date_next_action > 0">
-                                {{ formatDate({
-                                  value: scope.row.date_next_action
-                                }) }}
+                              <span>
+                                {{ scope.row.dateNextAction }}
                               </span>
                             </el-descriptions-item>
                           </el-descriptions>
@@ -171,10 +186,8 @@
                                   <svg-icon icon-class="calendar" style="font-size: 18px;" />
                                   {{ $t('issues.nextActionDate') + ': ' }}
                                 </b>
-                                <span v-if="scope.row.date_next_action > 0">
-                                  {{ formatDate({
-                                    value: scope.row.date_next_action
-                                  }) }}
+                                <span>
+                                  {{ scope.row.dateNextAction }}
                                 </span>
                               </i>
                             </p>
@@ -268,6 +281,7 @@ import { REQUEST_WINDOW_UUID } from '@/utils/ADempiere/dictionary/form/Issues.js
 // Utils and Helper Methods
 import { formatDate } from '@/utils/ADempiere/formatValue/dateFormat'
 import { zoomIn } from '@/utils/ADempiere/coreUtils.js'
+import { getImagePath } from '@/utils/ADempiere/resource.js'
 
 export default defineComponent({
   name: 'RecordIssues',
@@ -384,6 +398,17 @@ export default defineComponent({
       })
     }
 
+    function avatarResize(user) {
+      const { avatar } = user
+      const { uri } = getImagePath({
+        file: avatar,
+        width: 20,
+        height: 20,
+        operation: 'resize'
+      })
+      return uri
+    }
+
     store.dispatch('findListMailTemplates')
 
     return {
@@ -402,7 +427,8 @@ export default defineComponent({
       selectIssue,
       dueTypeColorDescription,
       newIssues,
-      zoomIssues
+      zoomIssues,
+      avatarResize
     }
   }
 })

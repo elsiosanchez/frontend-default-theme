@@ -17,45 +17,74 @@
 -->
 
 <template>
-  <div style="height: 100% !important;">
-    <el-card id="panel-top-search-criteria" class="panel-top-search-criteria" style="height: 100% !important;">
-      <el-table
-        v-loading="matchingMovements.isLoading"
-        :data="matchingMovements.list"
-        :empty-text="$t('form.VBankStatementMatch.automaticMatch.withoutAutomaticMatch')"
-        :border="true"
-        :element-loading-text="$t('notifications.loading') + '...'"
-        element-loading-spinner="el-icon-loading"
-        element-loading-background="rgba(0, 0, 0, 0.2)"
+  <el-card id="panel-top-search-criteria" class="panel-top-search-criteria">
+    <div slot="header" class="clearfix" style="text-align: center;">
+      <b>
+        {{ $t('form.VBankStatementMatch.systemPayments.table.match') }}
+        {{ '(' + $t('form.pos.order.total') + ': ' + matchingMovements.list.length + ')' }}
+      </b>
+    </div>
+    <el-table
+      v-loading="matchingMovements.isLoading"
+      :data="matchingMovements.list"
+      :empty-text="$t('form.VBankStatementMatch.automaticMatch.withoutAutomaticMatch')"
+      :border="true"
+      :element-loading-text="$t('notifications.loading') + '...'"
+      element-loading-spinner="el-icon-loading"
+      element-loading-background="rgba(0, 0, 0, 0.2)"
+      highlight-current-row
+      :cell-class-name="cellRow"
+      style="width: 100%"
+      @row-click="selectMatchingMovements"
+      @selection-change="selectMatch"
+    >
+      <p slot="empty" style="width: 100%;">
+        <el-empty :description="$t('form.VBankStatementMatch.automaticMatch.withoutAutomaticMatch')" />
+      </p>
+      <el-table-column
+        type="selection"
+        width="39"
+      />
+      <el-table-column
+        label="Automatico"
+        width="99"
       >
-        <p slot="empty" style="width: 100%;">
-          <el-empty :description="$t('form.VBankStatementMatch.automaticMatch.withoutAutomaticMatch')" />
-        </p>
-        <el-table-column
-          :label="$t('form.VBankStatementMatch.automaticMatch.title')"
-          :align="'center'"
-        >
-          <el-table-column
-            type="selection"
-            width="55"
+        <p slot-scope="scope" style="text-align: center;margin: 0px;">
+          <i
+            v-if="scope.row.is_automatic"
+            class="el-icon-check"
+            style="
+              font-size: 22px;
+              font-weight: 900;
+              color: green;
+            "
           />
-          <el-table-column
-            v-for="(fieldAttributes, key) in headerTable"
-            :key="key"
-            :column-key="fieldAttributes.columnName"
-            :prop="fieldAttributes.columnName"
-            :label="fieldAttributes.label"
-            :min-width="fieldAttributes.width"
-            :align="fieldAttributes.align"
-          >
-            <template slot-scope="scope">
-              {{ displayDataColumn(scope.row, fieldAttributes.columnName) }}
-            </template>
-          </el-table-column>
-        </el-table-column>
-      </el-table>
-    </el-card>
-  </div>
+          <i
+            v-else
+            class="el-icon-close"
+            style="
+              font-size: 22px;
+              font-weight: 900;
+              color: red;
+            "
+          />
+        </p>
+      </el-table-column>
+      <el-table-column
+        v-for="(fieldAttributes, key) in headerTable"
+        :key="key"
+        :column-key="fieldAttributes.columnName"
+        :prop="fieldAttributes.columnName"
+        :label="fieldAttributes.label"
+        :min-width="fieldAttributes.width"
+        :align="fieldAttributes.align"
+      >
+        <template slot-scope="scope">
+          {{ displayDataColumn(scope.row, fieldAttributes.columnName) }}
+        </template>
+      </el-table-column>
+    </el-table>
+  </el-card>
 </template>
 
 <script>
@@ -65,6 +94,7 @@ import lang from '@/lang'
 import store from '@/store'
 
 // Utils and Helper Methods
+import { isEmptyValue } from '@/utils/ADempiere/valueUtils'
 import { convertBooleanToTranslationLang } from '@/utils/ADempiere/formatValue/booleanFormat'
 import { formatPrice } from '@/utils/ADempiere/formatValue/numberFormat'
 
@@ -92,22 +122,22 @@ export default defineComponent({
 
     const headerTable = ref([
       {
-        label: lang.t('form.VBankStatementMatch.automaticMatch.table.transactionDate'),
+        label: lang.t('form.VBankStatementMatch.systemPayments.table.date'),
         columnName: 'transactionDate',
         align: 'left',
-        width: '150'
+        width: '110'
       },
       {
         label: lang.t('form.VBankStatementMatch.automaticMatch.table.receipt'),
         columnName: 'receipt',
         align: 'left',
-        width: '100'
+        width: '70'
       },
       {
         label: lang.t('form.VBankStatementMatch.automaticMatch.table.documentNo'),
         columnName: 'documentNo',
         align: 'left',
-        width: '150'
+        width: '130'
       },
       {
         label: lang.t('form.VBankStatementMatch.automaticMatch.table.businessPartner'),
@@ -149,7 +179,7 @@ export default defineComponent({
         label: lang.t('form.VBankStatementMatch.automaticMatch.table.memo'),
         columnName: 'memo',
         align: 'left',
-        width: '100'
+        width: '150'
       }
     ])
 
@@ -160,10 +190,10 @@ export default defineComponent({
           display = data.business_partner.name
           break
         case 'tenderType':
-          display = data.tender_type.name
+          display = isEmptyValue(data.tender_type) ? '' : data.tender_type.name
           break
         case 'currency':
-          display = data.currency.iso_code
+          display = isEmptyValue(data.currency) ? '' : data.currency.iso_code
           break
         case 'receipt':
           display = convertBooleanToTranslationLang(data.is_receipt)
@@ -177,7 +207,7 @@ export default defineComponent({
         case 'amount':
           display = formatPrice({
             value: data.amount,
-            currency: data.currency.iso_code
+            currency: isEmptyValue(data.currency) ? '' : data.currency.iso_code
           })
           break
         default:
@@ -187,10 +217,38 @@ export default defineComponent({
       return display
     }
 
+    function selectMatchingMovements(row, column, event) {
+      store.commit('updateAttributeCriteria', {
+        criteria: 'matchingMovements',
+        attribute: 'select',
+        value: row
+      })
+    }
+
+    function selectMatch(selection) {
+      store.commit('updateAttributeCriteria', {
+        criteria: 'matchingMovements',
+        attribute: 'listUnMatch',
+        value: selection
+      })
+    }
+
+    function cellRow({
+      row,
+      column,
+      rowIndex,
+      columnIndex
+    }) {
+      return 'cell-column-invoce'
+    }
+
     return {
-      matchingMovements,
       headerTable,
-      displayDataColumn
+      matchingMovements,
+      cellRow,
+      selectMatch,
+      displayDataColumn,
+      selectMatchingMovements
     }
   }
 })
@@ -226,5 +284,9 @@ export default defineComponent({
   .el-table__body-wrapper {
     height: 85% !important;
   }
+}
+.el-table .cell-column-invoce {
+  padding: 15px !important;
+  margin: 5px !important;
 }
 </style>

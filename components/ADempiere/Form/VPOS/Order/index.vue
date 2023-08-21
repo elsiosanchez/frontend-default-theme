@@ -1,6 +1,6 @@
 <!--
  ADempiere-Vue (Frontend) for ADempiere ERP & CRM Smart Business Solution
- Copyright (C) 2017-Present E.R.P. Consultores y Asociados, C.A.
+ Copyright (C) 2018-Present E.R.P. Consultores y Asociados, C.A.
  Contributor(s): Yamel Senih ysenih@erpya.com www.erpya.com
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -550,10 +550,10 @@
 </template>
 
 <script>
-// constants
+// Constants
 import fieldsListOrder from './fieldsListOrder.js'
 
-// components and mixins
+// Components and Mixins
 // import DocumentStatusTag from '@theme/components/ADempiere/ContainerOptions/DocumentStatusTag/index.vue'
 import formMixin from '@theme/components/ADempiere/Form/formMixin.js'
 import orderLineMixin from './orderLineMixin.js'
@@ -568,7 +568,7 @@ import FastOrdesList from '@theme/components/ADempiere/Form/VPOS/OrderList/fastO
 import DocumentStatusTag from '@theme/components/ADempiere/ContainerOptions/DocumentStatusTag/index.vue'
 import SalesRepresentative from '@theme/components/ADempiere/Form/VPOS/Order/SalesRepresentative.vue'
 
-// utils and helper methods
+// Utils and Helper Methods
 // Format of values ( Date, Price, Quantity )
 import {
   formatDate,
@@ -578,8 +578,9 @@ import {
 } from '@/utils/ADempiere/valueFormat.js'
 import { copyToClipboard } from '@/utils/ADempiere/coreUtils.js'
 import { formatQuantity as formatQuantityPanel } from '@/utils/ADempiere/formatValue/numberFormat.js'
+import { isEmptyValue } from '@/utils/ADempiere/valueUtils.js'
 
-// api request methods
+// API Request Methods
 import { requestLookupList } from '@/api/ADempiere/window.js'
 import { releaseOrder } from '@/api/ADempiere/form/point-of-sales.js'
 
@@ -605,6 +606,7 @@ export default {
 
   data() {
     return {
+      unsubscribe: () => {},
       fieldsList: fieldsListOrder,
       seeConversion: false,
       showFieldLine: false,
@@ -935,6 +937,13 @@ export default {
     }
   },
 
+  beforeMount() {
+    this.unsubscribe = this.subscribeChanges()
+  },
+  beforeDestroy() {
+    this.unsubscribe()
+  },
+
   mounted() {
     setTimeout(() => {
       if ((this.fieldCampaign && !this.isEmptyValue(this.fieldCampaign.reference)) && this.isEmptyValue(this.listCampaign)) {
@@ -971,6 +980,56 @@ export default {
     formatQuantity,
     formatQuantityPanel,
     copyToClipboard,
+    subscribeChanges() {
+      return this.$store.subscribe((mutation, state) => {
+        if (mutation.type === 'addActionPerformed') {
+          switch (mutation.payload.columnName) {
+            case 'C_DocTypeTarget_ID': {
+              const documentTypeUuid = this.$store.getters.getValueOfField({
+                containerUuid: mutation.payload.containerUuid,
+                columnName: 'C_DocTypeTarget_ID_UUID'
+              })
+              if (this.isPosRequiredPin && !this.isEmptyValue(documentTypeUuid) && !this.isEmptyValue(this.currentOrder.documentType.uuid)) {
+                const attributePin = {
+                  ...mutation.payload,
+                  type: 'updateOrder',
+                  requestedAccess: 'IsAllowsChangeListDocumentType'
+                }
+                this.$store.dispatch('changePopoverOverdrawnInvoice', { attributePin, visible: true })
+                this.visible = true
+              } else if (!this.isEmptyValue(documentTypeUuid) && !this.isEmptyValue(this.currentOrder.documentType.uuid)) {
+                this.$store.dispatch('updateOrder', {
+                  orderUuid: this.currentOrder.uuid,
+                  posUuid: this.currentPointOfSales.uuid,
+                  priceListUuid: this.$store.getters.currentPriceList.uuid,
+                  warehouseUuid: this.currentPointOfSales.warehouse.uuid,
+                  documentTypeUuid
+                })
+              }
+              break
+            }
+          }
+        } else if (mutation.type === 'updateValueOfField') {
+          switch (mutation.payload.columnName) {
+            // case 'DisplayColumn_TenderType':
+            //   this.displayType = mutation.payload.value
+            //   break
+            case 'C_BPartner_ID_UUID': {
+              if (!this.isEmptyValue(this.currentPointOfSales.templateCustomer) && this.$route.meta.uuid === mutation.payload.containerUuid) {
+                // Does not send values to server, when empty values are set or
+                // if BPartner set equal to BPartner POS template
+                const currentOrderUuid = this.currentOrder.uuid
+                if (isEmptyValue(currentOrderUuid)) {
+                  break
+                }
+                this.updateOrder(mutation.payload)
+              }
+              break
+            }
+          }
+        }
+      })
+    },
     openEditModeMobile(line) {
       this.lineRow = line
       this.isEditLineMobile = !this.isEditLineMobile
@@ -1223,30 +1282,30 @@ export default {
       }
     },
     changePriceList(priceList) {
-      if (priceList.id !== this.currentPriceList.id) {
-        if (priceList.is_pos_required_pin) {
-          const attributePin = {
-            ...priceList,
-            action: 'changePriceList',
-            type: 'actionPos',
-            requestedAccess: 'IsAllowsChangeListPrice',
-            label: this.$t('form.pos.pinMessage.priceList')
-          }
-          this.$store.dispatch('changePopoverOverdrawnInvoice', { attributePin, visible: true })
-          this.visible = true
-        } else {
-          if (!this.isEmptyValue(this.currentOrder.uuid)) {
-            this.$store.dispatch('updateOrder', {
-              orderUuid: this.currentOrder.uuid,
-              posUuid: this.currentPointOfSales.uuid,
-              documentTypeUuid: this.currentOrder.documentStatus.uuid,
-              priceListUuid: priceList.uuid,
-              warehouseUuid: this.currentPointOfSales.warehouse.uuid
-            })
-          }
-          this.$store.commit('setCurrentPriceList', priceList)
+      // if (priceList.id !== this.currentPriceList.id) {
+      if (priceList.is_pos_required_pin) {
+        const attributePin = {
+          ...priceList,
+          action: 'changePriceList',
+          type: 'actionPos',
+          requestedAccess: 'IsAllowsChangeListPrice',
+          label: this.$t('form.pos.pinMessage.priceList')
         }
+        this.$store.dispatch('changePopoverOverdrawnInvoice', { attributePin, visible: true })
+        this.visible = true
+      } else {
+        if (!this.isEmptyValue(this.currentOrder.uuid)) {
+          this.$store.dispatch('updateOrder', {
+            orderUuid: this.currentOrder.uuid,
+            posUuid: this.currentPointOfSales.uuid,
+            documentTypeUuid: this.currentOrder.documentStatus.uuid,
+            priceListUuid: priceList.uuid,
+            warehouseUuid: this.currentPointOfSales.warehouse.uuid
+          })
+        }
+        this.$store.commit('setCurrentPriceList', priceList)
       }
+      // }
     },
     changeDiscountList(discountList) {
       console.log(discountList)

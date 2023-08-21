@@ -251,17 +251,7 @@ export default {
       this.visible = value
     }
   },
-  beforeMount() {
-    this.unsubscribe = this.subscribeChanges()
-  },
-  beforeDestroy() {
-    this.unsubscribe()
-  },
-  mounted() {
-    if (!this.isEmptyValue(this.currentLineOrder)) {
-      this.$refs.linesTable.setCurrentRow(this.currentLineOrder)
-    }
-  },
+
   methods: {
     formatDate,
     formatPrice,
@@ -394,9 +384,22 @@ export default {
       } else if (action.type === 'actionPos') {
         switch (action.action) {
           case 'changeWarehouse':
-            this.$store.commit('setCurrentWarehousePos', action)
+            this.$store.dispatch('updateOrder', {
+              orderUuid: this.currentOrder.uuid,
+              posUuid: this.currentPointOfSales.uuid,
+              documentTypeUuid: this.currentOrder.documentStatus.uuid,
+              priceListUuid: this.currentPointOfSales.priceList.uuid,
+              warehouseUuid: action.uuid
+            })
             break
           case 'changeDocumentType':
+            this.$store.dispatch('updateOrder', {
+              orderUuid: this.currentOrder.uuid,
+              posUuid: this.currentPointOfSales.uuid,
+              documentTypeUuid: action.uuid,
+              priceListUuid: this.currentPointOfSales.priceList.uuid,
+              warehouseUuid: this.currentPointOfSales.warehouse.uuid
+            })
             this.$store.commit('setCurrentDocumentTypePos', action)
             break
           case 'newOrder':
@@ -406,7 +409,14 @@ export default {
             this.$store.dispatch('sendCreateCustomerAccount', action.payments)
             break
           case 'changePriceList':
-            this.$store.commit('setCurrentPriceList', action)
+            // this.$store.commit('setCurrentPriceList', action)
+            this.$store.dispatch('updateOrder', {
+              orderUuid: this.currentOrder.uuid,
+              posUuid: this.currentPointOfSales.uuid,
+              documentTypeUuid: this.currentOrder.documentStatus.uuid,
+              priceListUuid: action.uuid,
+              warehouseUuid: this.currentPointOfSales.warehouse.uuid
+            })
             break
           case 'openBalanceInvoice':
             switch (action.typeRefund) {
@@ -835,49 +845,6 @@ export default {
                 this.visible = true
               }
               break
-            case 'C_DocTypeTarget_ID': {
-              const documentTypeUuid = this.$store.getters.getValueOfField({
-                containerUuid: mutation.payload.containerUuid,
-                columnName: 'C_DocTypeTarget_ID_UUID'
-              })
-              if (this.isPosRequiredPin && !this.isEmptyValue(documentTypeUuid) && !this.isEmptyValue(this.currentOrder.documentType.uuid)) {
-                const attributePin = {
-                  ...mutation.payload,
-                  type: 'updateOrder',
-                  requestedAccess: 'IsAllowsChangeListDocumentType'
-                }
-                this.$store.dispatch('changePopoverOverdrawnInvoice', { attributePin, visible: true })
-                this.visible = true
-              } else if (!this.isEmptyValue(documentTypeUuid) && !this.isEmptyValue(this.currentOrder.documentType.uuid)) {
-                this.$store.dispatch('updateOrder', {
-                  orderUuid: this.currentOrder.uuid,
-                  posUuid: this.currentPointOfSales.uuid,
-                  priceListUuid: this.$store.getters.currentPriceList.uuid,
-                  warehouseUuid: this.currentPointOfSales.warehouse.uuid,
-                  documentTypeUuid
-                })
-              }
-              break
-            }
-          }
-        } else if (mutation.type === 'updateValueOfField') {
-          switch (mutation.payload.columnName) {
-            case 'DisplayColumn_TenderType':
-              this.displayType = mutation.payload.value
-              break
-            case 'C_BPartner_ID_UUID': {
-              const bPartnerValue = mutation.payload.value
-              if (!this.isEmptyValue(this.currentPointOfSales.templateCustomer) && this.$route.meta.uuid === mutation.payload.containerUuid) {
-                const bPartnerPOS = this.currentPointOfSales.templateCustomer.uuid
-                this.updateOrder(mutation.payload)
-                // Does not send values to server, when empty values are set or
-                // if BPartner set equal to BPartner POS template
-                if (this.isEmptyValue(bPartnerValue) || bPartnerValue === bPartnerPOS) {
-                  break
-                }
-              }
-              break
-            }
           }
         }
       })

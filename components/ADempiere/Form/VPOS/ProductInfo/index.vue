@@ -1,6 +1,6 @@
 <!--
  ADempiere-Vue (Frontend) for ADempiere ERP & CRM Smart Business Solution
- Copyright (C) 2017-Present E.R.P. Consultores y Asociados, C.A. www.erpya.com
+ Copyright (C) 2018-Present E.R.P. Consultores y Asociados, C.A. www.erpya.com
  Contributor(s): Edwin Betancourt EdwinBetanc0urt@outlook.com https://github.com/EdwinBetanc0urt
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -9,11 +9,11 @@
 
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with this program.  If not, see <https:www.gnu.org/licenses/>.
+ along with this program. If not, see <https:www.gnu.org/licenses/>.
 -->
 
 <template>
@@ -23,7 +23,7 @@
         {{ $t('form.productInfo.codeProduct') }}
         <el-popover
           v-if="!isMobile"
-          v-model="showProductList"
+          v-model="isShowProductsPriceList"
           v-shortkey="keyShortcuts"
           placement="bottom-start"
           trigger="click"
@@ -101,14 +101,12 @@
 </template>
 
 <script>
-// constants
-import ProductInfoList from './productList'
-
-// components and mixins
+// Components and Mixins
 import posMixin from '@theme/components/ADempiere/Form/VPOS/posMixin.js'
+import ProductInfoList from './productList'
 // import fieldMixin from '@theme/components/ADempiere/Field/mixin/mixinField.js'
 
-// utils and helper methods
+// Utils and Helper Methods
 import {
   formatPrice,
   formatQuantity
@@ -118,7 +116,7 @@ import {
  * This component is made to be the prototype of the Product Info search field
  */
 export default {
-  name: 'FieldProductInfo',
+  name: 'ProductPriceInfo',
 
   components: {
     ProductInfoList
@@ -164,15 +162,10 @@ export default {
     },
     isShowProductsPriceList: {
       get() {
-        return this.$store.state['pointOfSales/listProductPrice'].productPrice.isShowPopoverField
+        return this.$store.getters.getShowProductPriceList
       },
       set(isShowed) {
-        if (!this.isEmptyValue(this.$route.query.pos)) {
-          this.$store.commit('showListProductPrice', {
-            attribute: 'isShowPopoverField',
-            isShowed
-          })
-        }
+        this.$store.commit('setIsShowListProductPrice', isShowed)
       }
     },
     listWithPrice() {
@@ -187,14 +180,6 @@ export default {
         refreshList: ['f5'],
         refreshList2: ['shift', 'f5'],
         closeProductList: ['esc']
-      }
-    },
-    showProductList: {
-      get() {
-        return this.$store.getters.getShowProductList
-      },
-      set(value) {
-        this.$store.commit('setShowProductList', value)
       }
     },
     getProductValue() {
@@ -224,6 +209,7 @@ export default {
   beforeDestroy() {
     this.unsubscribe()
   },
+
   methods: {
     formatPrice,
     formatQuantity,
@@ -234,10 +220,7 @@ export default {
           this.$store.dispatch('listProductPriceFromServer', {})
           break
         case 'closeProductList':
-          this.$store.commit('showListProductPrice', {
-            attribute: this.popoverName,
-            isShowed: false
-          })
+          this.isShowProductsPriceList = false
           break
       }
     },
@@ -303,7 +286,7 @@ export default {
       callBack(this.orderedByProduct(results))
     },
     close() {
-      this.$store.commit('setShowProductList', false)
+      this.isShowProductsPriceList = false
     },
     handleSelect(elementSelected) {
       const valueProduct = this.isEmptyValue(elementSelected.product) ? elementSelected.value : elementSelected.product.value

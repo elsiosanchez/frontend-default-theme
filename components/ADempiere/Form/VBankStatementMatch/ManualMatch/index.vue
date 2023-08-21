@@ -18,14 +18,17 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
 
 <template>
   <div style="height: 100% !important;">
-    <el-card id="panel-top-search-criteria" class="panel-top-search-criteria" style="height: 100% !important;">
-      <div style="width: 50% !important;float: left;padding-left: 10px;padding-right: 10px;height: 100% !important;">
+    <el-card id="panel-top-search-criteria" class="panel-top-search-criteria" style="height: 50% !important;">
+      <div style="width: 50% !important;float: left;padding-left: 5px;padding-right: 2px;height: 100% !important;">
         <imported-payments />
       </div>
 
-      <div style="width: 50% !important;float: right;padding-left: 10px;padding-right: 10px;height: 100% !important;">
+      <div style="width: 50% !important;float: right;padding-left: 2px;padding-right: 5px;height: 100% !important;">
         <current-payments />
       </div>
+    </el-card>
+    <el-card style="height: 50% !important;">
+      <automatic-match style="padding-left: 5px;padding-right: 5px;" />
     </el-card>
   </div>
 </template>
@@ -35,11 +38,13 @@ import { defineComponent } from '@vue/composition-api'
 
 import CurrentPayments from './currentPayments.vue'
 import ImportedPayments from './importedPayments.vue'
+import AutomaticMatch from '../AutomaticMatch.vue'
 
 export default defineComponent({
   name: 'ManualMatch',
 
   components: {
+    AutomaticMatch,
     CurrentPayments,
     ImportedPayments
   }

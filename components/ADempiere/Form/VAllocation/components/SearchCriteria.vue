@@ -49,21 +49,6 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
                       }"
                       :in-table="true"
                     />
-                    <!-- <el-select
-                      v-model="businessPartnerId"
-                      style="width: 100%;"
-                      filterable
-                      clearable
-                      :filter-method="remoteSearchBusinessPartners"
-                      @visible-change="findBusinessPartners"
-                    >
-                      <el-option
-                        v-for="item in optionsBusinessPartners"
-                        :key="item.id"
-                        :label="item.label"
-                        :value="item.id"
-                      />
-                    </el-select> -->
                   </el-form-item>
                 </el-col>
                 <el-col :span="12">
@@ -362,7 +347,10 @@ export default defineComponent({
       },
       // setter
       set(id) {
-        // store.commit('setOrganizations', id)
+        store.commit('setProcess', {
+          attribute: 'transactionOrganizationId',
+          value: id
+        })
         store.commit('updateAttributeCriteriaVallocation', {
           attribute: 'organizationId',
           criteria: 'searchCriteria',

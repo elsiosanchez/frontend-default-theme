@@ -1,6 +1,6 @@
 <!--
  ADempiere-Vue (Frontend) for ADempiere ERP & CRM Smart Business Solution
- Copyright (C) 2017-Present E.R.P. Consultores y Asociados, C.A. www.erpya.com
+ Copyright (C) 2018-Present E.R.P. Consultores y Asociados, C.A. www.erpya.com
  Contributor(s): Elsio Sanchez esanchez@erpya.com https://github.com/elsiosanchez
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -64,6 +64,30 @@
           class="justify-text"
         >
           <pre>{{ fieldAttributes.defaultValue }}</pre>
+        </el-form-item>
+
+        <el-form-item
+          v-if="!isEmptyValue(fieldAttributes.displayLogic)"
+          :label="$t('fieldOptions.info.displayLogic')"
+          class="justify-text"
+        >
+          <pre>{{ fieldAttributes.displayLogic }}</pre>
+        </el-form-item>
+
+        <el-form-item
+          v-if="!isEmptyValue(fieldAttributes.readOnlyLogic)"
+          :label="$t('fieldOptions.info.readOnlyLogic')"
+          class="justify-text"
+        >
+          <pre>{{ fieldAttributes.defaultValue }}</pre>
+        </el-form-item>
+
+        <el-form-item
+          v-if="!isEmptyValue(fieldAttributes.mandatoryLogic)"
+          :label="$t('fieldOptions.info.mandatoryLogic')"
+          class="justify-text"
+        >
+          <pre>{{ fieldAttributes.mandatoryLogic }}</pre>
         </el-form-item>
       </el-form>
     </el-scrollbar>

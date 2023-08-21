@@ -579,6 +579,9 @@ export default {
         }, {
           columnName: 'IsTaxpayer',
           value: this.isEmptyValue(additionalAttributes) ? false : additionalAttributes.IsTaxpayer
+        }, {
+          columnName: 'TaxpayerType',
+          value: this.isEmptyValue(additionalAttributes) ? false : additionalAttributes.TaxpayerType
         }]
       })
     },

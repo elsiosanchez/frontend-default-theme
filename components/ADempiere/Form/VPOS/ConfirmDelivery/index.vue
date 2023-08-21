@@ -399,10 +399,7 @@ export default {
           break
 
         case 'closeProductList':
-          this.$store.commit('showListProductPrice', {
-            attribute: this.popoverName,
-            isShowed: false
-          })
+          this.$store.commit('setIsShowListProductPrice', false)
           break
       }
     },

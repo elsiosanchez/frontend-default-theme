@@ -177,7 +177,22 @@ export default defineComponent({
 
     const isLoadSave = ref(false)
 
-    const currentSetp = ref(1)
+    // const currentSetp = ref(1)
+    const currentSetp = computed({
+      // getter
+      get() {
+        const { currentStep } = store.getters.getAttribute
+        return currentStep
+      },
+      // setter
+      set(value) {
+        store.commit('updateAttributeVFileImport', {
+          attribute: 'attribute',
+          criteria: 'currentStep',
+          value: value
+        })
+      }
+    })
 
     /**
     * Computed

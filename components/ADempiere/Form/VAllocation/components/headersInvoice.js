@@ -76,6 +76,7 @@ export default [
   {
     label: lang.t('form.VAllocation.invoice.table.overUnderPay'),
     columnName: 'original_amount',
-    width: '200'
+    width: '200',
+    align: 'right'
   }
 ]

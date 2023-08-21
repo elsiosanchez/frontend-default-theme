@@ -1,6 +1,6 @@
 <!--
  ADempiere-Vue (Frontend) for ADempiere ERP & CRM Smart Business Solution
- Copyright (C) 2017-Present E.R.P. Consultores y Asociados, C.A.
+ Copyright (C) 2018-Present E.R.P. Consultores y Asociados, C.A. www.erpya.com
  Contributor(s): Elsio Sanchez elsiosanches@gmail.com https://github.com/elsiosanchez
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -342,7 +342,8 @@ import { zoomIn } from '@/utils/ADempiere/coreUtils.js'
 
 // API Request Methods
 import {
-  listSalesRepresentatives
+  // TODO: Implement new request to workflows
+  requestListSalesRepresentatives
 } from '@/api/ADempiere/user-interface/component/issue'
 import {
   processWorkflowActivity,
@@ -656,7 +657,7 @@ export default {
       if (!isVisible) {
         return
       }
-      listSalesRepresentatives()
+      requestListSalesRepresentatives({})
         .then(response => {
           const { records } = response
           this.listSalesReps = records

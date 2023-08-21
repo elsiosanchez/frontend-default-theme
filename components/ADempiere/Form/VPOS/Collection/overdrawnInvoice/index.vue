@@ -114,8 +114,11 @@
                     </el-select>
                   </el-form-item>
                 </el-col>
-                <el-col :span="8">
-                  <el-form-item label="Cuenta Bancaria" class="from-field">
+                <el-col v-if="validateCurrentPayment" :span="8">
+                  <el-form-item
+                    :label="$t('form.pos.collect.bankAcount')"
+                    class="from-field"
+                  >
                     <el-select
                       v-model="currentBankAccount"
                       style="display: block;"
@@ -577,6 +580,11 @@ export default {
     }
   },
   computed: {
+    validateCurrentPayment() {
+      const isPayment = this.paymentTypeListRefund.find(list => list.uuid === this.currentFieldPaymentMethods)
+      if (this.isEmptyValue(isPayment)) return false
+      return ['D', 'K', 'T', 'A', 'P', 'C'].includes(isPayment.payment_method.tender_type)
+    },
     IsAllowsPreviewDocument() {
       return this.$store.getters.posAttributes.currentPointOfSales.isAllowsPreviewDocument
     },
@@ -1389,7 +1397,10 @@ export default {
       })
       let refundCurrencyUuid
       const refund = this.convertValuesToSend(values)
-      if (this.isEmptyValue(this.currentBankAccount)) {
+      if (
+        this.validateCurrentPayment &&
+        this.isEmptyValue(this.currentBankAccount)
+      ) {
         const nameAccount = this.$store.getters.getValueOfField({
           containerUuid: 'OverdrawnInvoice',
           columnName: 'Name'

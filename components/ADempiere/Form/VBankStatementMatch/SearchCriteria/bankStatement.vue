@@ -20,6 +20,7 @@
   <el-form-item
     :label="$t('form.VBankStatementMatch.field.bankStatement')"
     class="form-item-criteria"
+    required
     style="width: 100%;"
   >
     <el-select
@@ -27,6 +28,7 @@
       value-key="id"
       filterable
       clearable
+      :disabled="isDisabledBankStatement"
       style="width: 100%;"
       :remote-method="remoteSearch"
       @visible-change="getBankStatementsList"
@@ -35,7 +37,7 @@
       <el-option
         v-for="item in storedBankStatementsList"
         :key="item.id"
-        :label="'#' + item.documentNo + ' - ' + formatDate({ value: item.statementDate})"
+        :label="'#' + item.documentNo + ' - ' + formatDate({ value: item.statementDate}) + ' - ' + item.name"
         :value="item"
       />
     </el-select>
@@ -46,6 +48,7 @@
 import { defineComponent, computed, ref, onMounted } from '@vue/composition-api'
 
 import store from '@/store'
+import router from '@/router'
 
 // Utils and Helper Methods
 import { isEmptyValue } from '@/utils/ADempiere/valueUtils'
@@ -53,21 +56,34 @@ import { formatDate } from '@/utils/ADempiere/formatValue/dateFormat'
 
 export default defineComponent({
   name: 'BankAccount',
+  props: {
+    isDisabled: {
+      type: Boolean,
+      default: false
+    }
+  },
 
-  setup() {
+  setup(props) {
     const timeOut = ref(null)
 
     const storedBankStatement = computed({
       set(newValue) {
+        const { bankAccount } = newValue
+        if (!isEmptyValue(bankAccount) && bankAccount.id > 0) {
+          store.commit('setBankAccountId', bankAccount.id)
+        }
         store.commit('setCurrentBankStatement', newValue)
       },
       get() {
         const currentValue = store.getters.getCurrentBankStatement
-        // if (isEmptyValue(currentValue)) {
-        //   return undefined
-        // }
         return currentValue
       }
+    })
+
+    const isDisabledBankStatement = computed(() => {
+      const currentRoute = router.app.$route
+      const { query } = currentRoute
+      return !isEmptyValue(query.Record_ID) || props.isDisabled
     })
 
     const bankAccountId = computed(() => {
@@ -124,6 +140,7 @@ export default defineComponent({
     return {
       storedBankStatement,
       storedBankStatementsList,
+      isDisabledBankStatement,
       //
       formatDate,
       getBankStatementsList,

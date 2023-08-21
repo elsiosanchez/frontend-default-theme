@@ -23,9 +23,9 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
     v-loading="isLoadingInvoces"
     :data="listInvoces"
     border
-    :max-height="panelInvoce"
-    element-loading-background="rgba(255, 255, 255, 0.8)"
+    style="width: 100%;height: 100%;overflow: auto"
     :element-loading-text="$t('notifications.loading')"
+    element-loading-background="rgba(255, 255, 255, 0.8)"
     @select="selectionInvoces"
     @select-all="selectionInvocesAll"
   >
@@ -39,7 +39,7 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
       :key="key"
       prop="id"
       :align="header.align"
-      width="210"
+      :min-width="header.width"
       :label="header.label"
     >
       <template slot-scope="scope">
@@ -55,13 +55,13 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
         <span v-else>
           <p
             v-if="scope.row[header.columnName].length < 13 || (typeof scope.row[header.columnName] === 'number')"
-            style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;line-height: 12px;"
+            style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;line-height: 12px;margin: 0px;"
           >
             {{ scope.row[header.columnName] }}
           </p>
           <p
             v-else
-            style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;line-height: 12px;"
+            style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;line-height: 12px;margin: 0px;"
           >
             <el-popover
               placement="top-start"
@@ -72,7 +72,7 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
               <p
                 slot="reference"
                 type="text"
-                style="color: #606266;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;line-height: 12px;"
+                style="color: #606266;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;line-height: 12px;margin: 0px;"
               >
                 {{ scope.row[header.columnName] }}
               </p>
@@ -315,7 +315,7 @@ export default defineComponent({
 <style>
 .el-table--scrollable-x .el-table__body-wrapper {
   height: 90%;
-  overflow-x: auto;
+  overflow: auto;
 }
 /* .el-card__header {
   padding-top: 5px;

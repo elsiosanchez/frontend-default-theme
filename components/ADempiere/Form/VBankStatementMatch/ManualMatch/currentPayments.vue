@@ -17,32 +17,51 @@
 -->
 
 <template>
-  <el-card style="height: 100% !important;">
+  <el-card style="height: 100% !important;padding: 0px 10px;">
     <div slot="header" class="clearfix" style="text-align: center;">
       <b>
         {{ $t('form.VBankStatementMatch.systemPayments.title') }}
+        {{ '(' + $t('form.VBankStatementMatch.systemPayments.table.total') + ': ' + recorsList.length + ')' }}
       </b>
-
-      <el-button
-        style="margin-left: 10px;"
-        type="success"
-        class="button-base-icon"
-        icon="el-icon-refresh-right"
-        :loading="isLoading"
-        @click="refreshSearch"
-      />
     </div>
 
     <el-table
       v-loading="isLoading"
       :data="recorsList"
       :border="true"
-      max-height="300"
-      @current-change="handleSelectPayment"
+      max-height="313"
+      :row-class-name="tableRowClassName"
+      :cell-class-name="cellRow"
+      style="width: 100%;"
     >
       <el-table-column
+        :label="$t('form.VBankStatementMatch.systemPayments.table.match')"
+        min-width="109"
+      >
+        <p slot-scope="scope" style="text-align: center;margin: 0px;">
+          <i
+            v-if="displayMatch(scope.row)"
+            class="el-icon-check"
+            style="
+              font-size: 22px;
+              font-weight: 900;
+              color: green;
+            "
+          />
+          <i
+            v-else
+            class="el-icon-close"
+            style="
+              font-size: 22px;
+              font-weight: 900;
+              color: red;
+            "
+          />
+        </p>
+      </el-table-column>
+      <el-table-column
         :label="$t('form.VBankStatementMatch.systemPayments.table.date')"
-        width="95"
+        min-width="120"
       >
         <template slot-scope="scope">
           {{ formatDate({ value: scope.row.transaction_date, isDate: true }) }}
@@ -51,7 +70,7 @@
 
       <el-table-column
         :label="$t('form.VBankStatementMatch.systemPayments.table.receipt')"
-        width="75"
+        min-width="120"
       >
         <template slot-scope="scope">
           {{ convertBooleanToTranslationLang(scope.row.is_receipt) }}
@@ -61,12 +80,12 @@
       <el-table-column
         :label="$t('form.VBankStatementMatch.systemPayments.table.documentNo')"
         prop="document_no"
-        width="100"
+        min-width="130"
       />
 
       <el-table-column
         :label="$t('form.VBankStatementMatch.systemPayments.table.businessPartner')"
-        width="180"
+        min-width="180"
       >
         <template slot-scope="scope">
           {{ scope.row.business_partner.value }}
@@ -78,18 +97,19 @@
       <el-table-column
         :label="$t('form.VBankStatementMatch.systemPayments.table.tenderType')"
         prop="tender_type.name"
-        width="120"
+        min-width="150"
       />
 
       <el-table-column
         :label="$t('form.VBankStatementMatch.systemPayments.table.currency')"
         prop="currency.iso_code"
-        width="75"
+        min-width="100"
       />
 
       <el-table-column
         :label="$t('form.VBankStatementMatch.systemPayments.table.amount')"
-        width="150"
+        min-width="150"
+        align="right"
       >
         <template slot-scope="scope">
           {{ formatPrice({ value: scope.row.amount, currency: scope.row.currency.iso_code }) }}
@@ -99,7 +119,7 @@
       <el-table-column
         :label="$t('form.VBankStatementMatch.systemPayments.table.description')"
         prop="description"
-        width="180"
+        min-width="120"
       />
     </el-table>
   </el-card>
@@ -126,6 +146,11 @@ export default defineComponent({
       return store.getters.getPayments
     })
 
+    const listMatch = computed(() => {
+      const { list } = store.getters.getListMatchingMovements
+      return list
+    })
+
     function handleSelectPayment(row) {
       if (isEmptyValue(row)) return
       row.isSelection = !row.isSelection
@@ -145,6 +170,37 @@ export default defineComponent({
         })
     }
 
+    function tableRowClassName({
+      row,
+      rowIndex
+    }) {
+      const { select } = store.getters.getListMatchingMovements
+      if (
+        !isEmptyValue(select) &&
+        !isEmptyValue(row) &&
+        row.id === select.payment_id
+      ) {
+        return 'success-payment'
+      }
+      return ''
+    }
+
+    function displayMatch(row) {
+      const { list } = store.getters.getListMatchingMovements
+      if (isEmptyValue(list)) return false
+      const isMatch = list.find(list => list.payment_id === row.id)
+      return !isEmptyValue(isMatch)
+    }
+
+    function cellRow({
+      row,
+      column,
+      rowIndex,
+      columnIndex
+    }) {
+      return 'cell-column-invoce'
+    }
+
     onMounted(() => {
       if (isEmptyValue(recorsList.value)) {
         refreshSearch()
@@ -154,13 +210,28 @@ export default defineComponent({
     return {
       isLoading,
       recorsList,
-      //
-      handleSelectPayment,
+      listMatch,
+      // Methods
+      cellRow,
       formatDate,
       formatPrice,
-      convertBooleanToTranslationLang,
-      refreshSearch
+      displayMatch,
+      refreshSearch,
+      tableRowClassName,
+      handleSelectPayment,
+      convertBooleanToTranslationLang
     }
   }
 })
 </script>
+<style lang="scss">
+.el-table .success-payment {
+  background: #d9ecff;
+}
+.el-table .not-match {
+  background: #fadbe9b0;
+}
+.el-table .cell-column-invoce {
+  padding: 0px !important;
+}
+</style>

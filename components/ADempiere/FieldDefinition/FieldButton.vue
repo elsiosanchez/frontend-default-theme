@@ -61,7 +61,8 @@ import {
   runProcessOfWindow,
   generateReportOfWindow,
   openBrowserAssociated,
-  openDocumentAction
+  openDocumentAction,
+  openFormAssociated
 } from '@/utils/ADempiere/dictionary/window.js'
 import { isEmptyValue, isSameValues } from '@/utils/ADempiere/valueUtils'
 import { getContextAttributes, generateContextKey } from '@/utils/ADempiere/contextUtils/contextAttributes'
@@ -160,6 +161,23 @@ export default {
             browserUuid: this.metadata.process.browserUuid
           }),
           isEnabled: () => generateReportOfWindow.enabled({
+            parentUuid: this.parentUuid,
+            containerUuid: this.containerUuid
+          })
+        }
+      }
+
+      if (this.metadata.process.formUuid) {
+        return {
+          is: 'svg-icon',
+          'icon-class': 'search',
+          start: () => openFormAssociated.openFormAssociated({
+            parentUuid: this.parentUuid,
+            containerUuid: this.containerUuid,
+            uuid: this.metadata.process.uuid,
+            formUuid: this.metadata.process.formUuid
+          }),
+          isEnabled: () => openFormAssociated.enabled({
             parentUuid: this.parentUuid,
             containerUuid: this.containerUuid
           })

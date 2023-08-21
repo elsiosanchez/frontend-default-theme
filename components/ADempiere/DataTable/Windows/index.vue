@@ -38,6 +38,7 @@
       element-loading-background="rgba(255, 255, 255, 0.8)"
       :element-loading-text="$t('notifications.loading')"
       :row-class-name="tableRowClassName"
+      style="overflow: auto;"
       @row-dblclick="handleRowDblClick"
       @select-all="handleSelectionAll"
       @cell-click="handleCellClick"
@@ -49,7 +50,6 @@
         v-if="isTableSelection"
         type="selection"
         :prop="keyColumn"
-        fixed
         min-width="50"
       />
 
@@ -405,7 +405,7 @@ export default defineComponent({
       let index = 0
       rowSelected.isSelectedRow = !rowSelected.isSelectedRow
       rowSelected.rowSelectedIndex = index++
-      rowSelected.isEditRow = rowSelected.isSelectedRow // edit record if is selected
+      // rowSelected.isEditRow = rowSelected.isSelectedRow // edit record if is selected
 
       handleSelectionAll(selections)
     }
@@ -437,7 +437,7 @@ export default defineComponent({
       if (column.type === 'selection') {
         let currentSelection = selectionsList.value
         row.isSelectedRow = !row.isSelectedRow
-        row.isEditRow = row.isSelectedRow
+        // row.isEditRow = row.isSelectedRow
         if (row.isSelectedRow) {
           currentSelection.push(row)
         } else {
@@ -446,6 +446,8 @@ export default defineComponent({
         handleSelectionAll(currentSelection)
         toggleSelection(currentSelection)
         return
+      } else {
+        row.isEditRow = row.isSelectedRow
       }
 
       const { tableName } = props.panelMetadata
@@ -656,6 +658,7 @@ export default defineComponent({
 <style lang="scss">
 .multipleTableWindow {
   height: 100%;
+  overflow: auto;
   .el-table {
     height: 100% !important;
   }

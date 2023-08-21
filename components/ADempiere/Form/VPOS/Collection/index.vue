@@ -72,6 +72,7 @@
                       <el-select
                         v-model="currentFieldPaymentMethods"
                         style="display: block;"
+                        :filterable="!isMobile"
                         @change="changePaymentMethods"
                       >
                         <el-option
@@ -145,7 +146,7 @@
           <samp id="buttonCollection" style="float: right;padding-right: 10px;">
             <el-button type="danger" icon="el-icon-close" @click="exit" />
             <el-button type="info" icon="el-icon-minus" :disabled="isDisabled" @click="undoPatment" />
-            <el-button type="success" icon="el-icon-plus" @click="addCollectToList(paymentBox)" />
+            <el-button type="success" icon="el-icon-plus" :disabled="fieldAmount <= 0" @click="addCollectToList(paymentBox)" />
             <el-button type="primary" icon="el-icon-shopping-cart-full" :disabled="isLoadProcessOrder" :loading="isLoadProcessOrder" @click="validateOrder(listPayments)" />
           </samp>
         </el-header>
@@ -399,6 +400,9 @@ export default {
   computed: {
     listCurrency() {
       return this.$store.getters.getCurrenciesList
+    },
+    isMobile() {
+      return this.$store.state.app.device === 'mobile'
     },
     convertionList() {
       return this.$store.state['pointOfSales/point/index'].conversionsList

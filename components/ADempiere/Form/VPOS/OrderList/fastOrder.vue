@@ -1,6 +1,6 @@
 <!--
  ADempiere-Vue (Frontend) for ADempiere ERP & CRM Smart Business Solution
- Copyright (C) 2017-Present E.R.P. Consultores y Asociados, C.A.
+ Copyright (C) 2018-Present E.R.P. Consultores y Asociados, C.A.
  Contributor(s): Yamel Senih ysenih@erpya.com www.erpya.com
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -9,11 +9,11 @@
 
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with this program.  If not, see <https:www.gnu.org/licenses/>.
+ along with this program. If not, see <https:www.gnu.org/licenses/>.
 -->
 
 <template>
@@ -375,6 +375,30 @@ export default {
           title: this.$t('form.byInvoice.searchCompleteOrders'),
           params: {
             isOnlyProcessed: true
+          },
+          isVisible: false,
+          isShow: true
+        },
+        {
+          title: this.$t('form.byInvoice.proposals'),
+          params: {
+            isBindingOffer: true
+          },
+          isVisible: false,
+          isShow: true
+        },
+        {
+          title: this.$t('form.byInvoice.cancelled'),
+          params: {
+            isNullified: true
+          },
+          isVisible: false,
+          isShow: true
+        },
+        {
+          title: this.$t('form.byInvoice.closed'),
+          params: {
+            isClosed: true
           },
           isVisible: false,
           isShow: true
