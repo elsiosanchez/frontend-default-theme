@@ -16,20 +16,36 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
 
 <template>
   <span>
-    <el-dropdown
-      split-button
-      type="primary"
-      @click="handleClick"
+    <el-form
+      label-position="top"
+      class="form-min-label"
+      inline
+      style="text-align: center;"
+      @submit.native.prevent="notSubmitForm"
     >
-      {{ $t('form.pos.optionsPoinSales.salesOrder.newOrder') }}
-      <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item>Action 1</el-dropdown-item>
-        <el-dropdown-item>Action 2</el-dropdown-item>
-        <el-dropdown-item>Action 3</el-dropdown-item>
-        <el-dropdown-item>Action 4</el-dropdown-item>
-        <el-dropdown-item>Action 5</el-dropdown-item>
-      </el-dropdown-menu>
-    </el-dropdown>
+      <el-form-item
+        style="width: 100% !important;display: contents;"
+      >
+        <template slot="label">
+          <b style="color: transparent !important;">
+            {{ 'Options Orders' }}
+          </b>
+        </template>
+        <el-dropdown
+          split-button
+          type="primary"
+        >
+          {{ $t('form.pos.optionsPoinSales.salesOrder.newOrder') }}
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item>Action 1</el-dropdown-item>
+            <el-dropdown-item>Action 2</el-dropdown-item>
+            <el-dropdown-item>Action 3</el-dropdown-item>
+            <el-dropdown-item>Action 4</el-dropdown-item>
+            <el-dropdown-item>Action 5</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+      </el-form-item>
+    </el-form>
   </span>
 </template>
 

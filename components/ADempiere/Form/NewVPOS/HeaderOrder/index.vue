@@ -15,15 +15,15 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
 -->
 
 <template>
-  <el-row>
-    <el-col :span="12">
+  <el-row :gutter="10">
+    <el-col :span="15">
       <search-product />
     </el-col>
-    <el-col :span="8">
-      {{ 'Socio de Negocio' }}
+    <el-col :span="6">
+      <customer />
     </el-col>
-    <el-col :span="4">
-      {{ 'New Order > List Orders' }}
+    <el-col :span="3">
+      <actions-order />
     </el-col>
   </el-row>
 </template>
@@ -33,10 +33,13 @@ import { defineComponent } from '@vue/composition-api'
 
 // Components and Mixins
 import SearchProduct from './ProductInfo/SearchProduct'
-
+import Customer from './Customer'
+import ActionsOrder from './ActionsOrder'
 export default defineComponent({
   name: 'HeaderOrder',
   components: {
+    Customer,
+    ActionsOrder,
     SearchProduct
   }
 })

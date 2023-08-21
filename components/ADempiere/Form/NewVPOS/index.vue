@@ -18,7 +18,7 @@ along with this program. If not, see <https:www.gnu.org/licenses/>.
   <el-container
     class="v-pos"
   >
-    <el-header style="height: auto !important;">
+    <el-header style="height: auto !important;margin-bottom: 10px;">
       <header-order />
     </el-header>
     <el-main style="padding: 0px 20px;">
