@@ -112,10 +112,6 @@ import store from '@/store'
 // Components and Mixins
 import NewCustomer from './NewCustomer'
 // utils and helper methods
-// import {
-//   formatPrice,
-//   formatQuantity
-// } from '@/utils/ADempiere/formatValue/numberFormat'
 import { isEmptyValue } from '@/utils/ADempiere'
 
 export default defineComponent({
@@ -168,13 +164,7 @@ export default defineComponent({
             searchValue: search
           })
             .then(response => {
-              console.log({ response })
-              listCustomer.value = response.map(list => {
-                console.log({ list })
-                return {
-                  ...list
-                }
-              })
+              listCustomer.value = response
               callBack(listCustomer.value)
               isLoading.value = false
             })
@@ -266,9 +256,11 @@ export default defineComponent({
   .el-dialog__header {
     border: 1px solid #d3d4d6;
     background: #FFFFFF;
-    // border-radius: 10px;
-    padding: 10px 0px;
+    padding: 0px;
     font-weight: bold;
+    padding-top: 25px;
+    border-bottom: 0px;
+    padding-bottom: 5px;
   }
 }
 </style>

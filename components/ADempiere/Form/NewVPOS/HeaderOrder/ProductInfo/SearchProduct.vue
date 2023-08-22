@@ -124,7 +124,6 @@ export default defineComponent({
       },
       // setter
       set(show) {
-        console.log({ show })
         store.commit('setShowProductList', show)
       }
     })

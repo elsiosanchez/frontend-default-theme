@@ -114,10 +114,9 @@ export default defineComponent({
       }
     })
     const lines = computed(() => {
-      console.log(store.getters.getPoint.order)
       return store.getters.getPoint.order.listLines
     })
-    console.log({ lines: lines.value })
+
     return {
       orderLineDefinition
     }
