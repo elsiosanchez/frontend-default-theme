@@ -322,11 +322,11 @@ export default {
     }
   },
   watch: {
-    isReadyFromGetData(isToLoad) {
-      if (isToLoad) {
-        this.loadProductsPricesList()
-      }
-    },
+    // isReadyFromGetData(isToLoad) {
+    //   if (isToLoad) {
+    //     this.loadProductsPricesList()
+    //   }
+    // },
     indexTable(value) {
       this.setCurrent(this.listWithPrice[value])
     },
