@@ -308,7 +308,7 @@ export default defineComponent({
 
     function addLine(line) {
       store.dispatch('createLineRMA', {
-        sourceOrderLineId: 1157746,
+        sourceOrderLineId: line.id,
         quantity: line.quantityOrdered,
         rmaId: currentOrderReturn.value.id,
         posId: currentPointOfSales.value.id
